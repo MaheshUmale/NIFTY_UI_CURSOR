@@ -1,6 +1,6 @@
 # Follow-Up Task List — Verification & Enhancements
 
-**Status:** Plan only — do not execute changes unless explicitly requested.
+**Status:** A4 and A5 completed — ready to verify
 **Created by:** Kilo session ending at 2026-06-10T15:33:36+05:30
 **Base commit:** b218db4
 
