@@ -95,7 +95,7 @@ state = AppState()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Startup/shutdown lifecycle."""
-    load_dotenv(Path(__file__).parent / "config" / ".env")
+    load_dotenv(Path(__file__).parent / "config" / ".env", override=True)
     logger.info("Trading system starting up...")
     state.start_time = time.time()
 
@@ -113,6 +113,12 @@ async def lifespan(app: FastAPI):
                 "NSE_INDEX|Nifty 50",
                 "NSE_INDEX|Nifty Bank",
             ]
+            state.ws_client = WebSocketClient(
+                token=state.access_token,
+                tick_handler=tick_handler,
+                buffer=state.buffer,
+                instrument_keys=instrument_keys,
+            )
             asyncio.create_task(_run_websocket(instrument_keys))
             state.connected = True
             state.error_message = ""

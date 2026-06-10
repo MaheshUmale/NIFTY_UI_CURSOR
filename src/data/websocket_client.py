@@ -34,12 +34,13 @@ class WebSocketClient:
         token: str,
         tick_handler: Callable[[dict[str, Any]], Any],
         buffer: MarketBuffer,
+        instrument_keys: list[str] | None = None,
     ) -> None:
         self._token = token
         self._tick_handler = tick_handler
         self._buffer = buffer
+        self._subscribed_keys = list(instrument_keys or [])
         self._streamer: upstox_client.MarketDataStreamerV3 | None = None
-        self._subscribed_keys: list[str] = []
         self._running_event: asyncio.Event | None = None
         self._loop: asyncio.AbstractEventLoop | None = None
         self._reconnect_count: int = 0
