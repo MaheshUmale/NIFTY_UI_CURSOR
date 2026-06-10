@@ -14,6 +14,7 @@ Unit and integration tests for every module. Defines the test pyramid (unit → 
 | `test_exception_handler.py` | All agents (shared concern) |
 | `test_logger.py` | All agents (shared concern) |
 | `test_e2e_live.py` | All agents (shared concern) — E2E live streaming & UI pipeline tests |
+| `test_streamin.py` | SDK integration utility — standalone Upstox connection sanity check (credentials from env, never hardcoded) |
 | `fixtures/` | All agents (shared mock data) |
 
 # Local Contracts

@@ -22,6 +22,8 @@ from datetime import datetime, time as dtime
 from pathlib import Path
 from typing import Any
 
+from dotenv import load_dotenv
+
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -93,9 +95,36 @@ state = AppState()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Startup/shutdown lifecycle."""
+    load_dotenv(Path(__file__).parent / "config" / ".env")
     logger.info("Trading system starting up...")
     state.start_time = time.time()
+
+    token = os.getenv("UPSTOX_ACCESS_TOKEN", "").strip()
+    if token:
+        state.access_token = token
+        logger.info("Access token loaded from .env (length=%d)", len(token))
+        try:
+            state.ws_client = WebSocketClient(
+                token=state.access_token,
+                tick_handler=tick_handler,
+                buffer=state.buffer,
+            )
+            instrument_keys = [
+                "NSE_INDEX|Nifty 50",
+                "NSE_INDEX|Nifty Bank",
+            ]
+            asyncio.create_task(_run_websocket(instrument_keys))
+            state.connected = True
+            state.error_message = ""
+            logger.info("WebSocket auto-connect initiated for %s", instrument_keys)
+        except Exception as e:
+            state.error_message = str(e)
+            logger.exception("Failed to auto-connect on startup")
+    else:
+        logger.info("No UPSTOX_ACCESS_TOKEN in .env — waiting for manual connect")
+
     yield
+
     logger.info("Trading system shutting down...")
     if state.ws_client:
         await state.ws_client.disconnect()
@@ -186,6 +215,8 @@ async def tick_handler(tick: dict[str, Any]) -> None:
         state.tick_count += 1
         instrument_key = tick.get("instrument_key", tick.get("symbol", "unknown"))
         state.latest_ticks[instrument_key] = tick
+
+        logger.debug("tick_handler received tick %d: keys=%s last_price=%r", state.tick_count, list(tick.keys()), tick.get("last_price"))
 
         # Run strategy
         try:

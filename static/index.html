@@ -1,191 +1,167 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NIFTY Trading System - Live Dashboard</title>
-    <script src="https://unpkg.com/lightweight-charts@4.0.0/dist/lightweight-charts.standalone.production.js"></script>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0a0e17; color: #e0e6ed; min-height: 100vh; }
-        #root { display: grid; grid-template-columns: 280px 1fr 280px; grid-template-rows: 48px 1fr auto; gap: 8px; padding: 8px; height: 100vh; }
-        #header { grid-column: 1 / -1; background: #1a1f2e; padding: 0 16px; display: flex; justify-content: space-between; align-items: center; border-radius: 6px; border: 1px solid #21262d; }
-        #header h1 { font-size: 16px; color: #58a6ff; font-weight: 600; }
-        #statusBadge { padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; }
-        .status-connected { background: #1a3a2a; color: #3fb950; border: 1px solid #238636; }
-        .status-disconnected { background: #3a1a1a; color: #f85149; border: 1px solid #da3633; }
-        .status-connecting { background: #3a3a1a; color: #d29922; border: 1px solid #9e6a03; }
-        .panel { background: #161b22; border: 1px solid #21262d; border-radius: 6px; display: flex; flex-direction: column; overflow: hidden; }
-        .panel-header { background: #1c2129; padding: 8px 12px; font-size: 12px; font-weight: 600; color: #8b949e; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid #21262d; }
-        .panel-body { padding: 10px; overflow-y: auto; }
-        input { width: 100%; background: #0d1117; border: 1px solid #30363d; border-radius: 4px; padding: 6px 10px; color: #e0e6ed; font-family: monospace; font-size: 12px; margin-bottom: 8px; }
-        input:focus { outline: none; border-color: #58a6ff; }
-        button { width: 100%; padding: 6px 12px; border-radius: 4px; border: 1px solid; font-size: 12px; font-weight: 600; cursor: pointer; margin-bottom: 6px; }
-        .btn-connect { background: #238636; color: #fff; border-color: #2ea043; }
-        .btn-disconnect { background: #da3633; color: #fff; border-color: #f85149; }
-        .btn-simulate { background: #8957e5; color: #fff; border-color: #a371f7; }
-        .btn-test { background: #1f6feb; color: #fff; border-color: #58a6ff; }
-        .chart-container { flex: 1; background: #0d1117; border-radius: 4px; position: relative; }
-        .metric-card { background: #0d1117; border: 1px solid #21262d; border-radius: 4px; padding: 10px; margin-bottom: 8px; }
-        .metric-label { font-size: 11px; color: #8b949e; margin-bottom: 4px; }
-        .metric-value { font-size: 18px; font-weight: 700; font-family: 'Courier New', monospace; }
-        .metric-value.bullish { color: #3fb950; }
-        .metric-value.bearish { color: #f85149; }
-        .metric-value.neutral { color: #8b949e; }
-        .signal-card { background: #0d1117; border: 1px solid #21262d; border-left: 3px solid; border-radius: 4px; padding: 8px; margin-bottom: 6px; font-size: 12px; }
-        .signal-card.long { border-left-color: #3fb950; }
-        .signal-card.short { border-left-color: #f85149; }
-        .signal-header { display: flex; justify-content: space-between; margin-bottom: 4px; }
-        .signal-side { font-weight: 700; padding: 2px 6px; border-radius: 3px; font-size: 11px; }
-        .signal-side.long { background: #1a3a2a; color: #3fb950; }
-        .signal-side.short { background: #3a1a1a; color: #f85149; }
-        .risk-bar { height: 6px; background: #21262d; border-radius: 3px; overflow: hidden; margin-top: 4px; }
-        .risk-fill { height: 100%; transition: width 0.3s ease; }
-        .risk-ok { background: #3fb950; }
-        .risk-warning { background: #d29922; }
-        .risk-danger { background: #f85149; }
-        @media (max-width: 1024px) { #root { grid-template-columns: 1fr; } .panel { max-height: 300px; } }
-    </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>NIFTY Trading System — Live Dashboard</title>
+<link rel="stylesheet" href="/static/css/style.css" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js">
+</script>
 </head>
 <body>
-    <div id="root">
-        <div id="header"><h1>NIFTY Trading System</h1><span id="statusBadge" class="status-disconnected">DISCONNECTED</span></div>
-        <div id="connection" class="panel">
-            <div class="panel-header">Connection</div>
-            <div class="panel-body">
-                <input type="text" id="tokenInput" placeholder="Upstox access token..." />
-                <button class="btn-connect" onclick="connect()">Connect</button>
-                <button class="btn-disconnect" onclick="disconnect()">Disconnect</button>
-                <button class="btn-simulate" onclick="simulateTick()">Simulate Tick</button>
-                <button class="btn-test" onclick="runTest()">E2E Test</button>
-            </div>
-        </div>
-        <div id="charts" class="panel">
-            <div class="panel-header">Charts</div>
-            <div class="panel-body" style="padding: 4px; display: flex; flex-direction: column; gap: 4px;">
-                <div class="chart-container" id="spotChart"></div>
-                <div class="chart-container" id="callChart"></div>
-                <div class="chart-container" id="putChart"></div>
-            </div>
-        </div>
-        <div id="strategy" class="panel">
-            <div class="panel-header">Indicators</div>
-            <div class="panel-body">
-                <div class="metric-card"><div class="metric-label">COI PCR</div><div class="metric-value" id="pcrValue">0.00</div><div class="metric-label">Trend: <span id="pcrTrend">FLAT</span></div></div>
-                <div class="metric-card"><div class="metric-label">Net GEX</div><div class="metric-value" id="gexValue">0</div></div>
-                <div class="metric-card"><div class="metric-label">IV Skew</div><div class="metric-value" id="ivSkewValue">0.00</div></div>
-                <div class="metric-card"><div class="metric-label">Max Pain</div><div class="metric-value" id="maxPainValue">-</div></div>
-            </div>
-        </div>
-        <div id="signals" class="panel">
-            <div class="panel-header">Signals</div>
-            <div class="panel-body" id="signalsList"><div style="color: #484f58; font-size: 12px;">No signals</div></div>
-        </div>
-        <div id="risk" class="panel">
-            <div class="panel-header">Risk</div>
-            <div class="panel-body">
-                <div><div class="metric-label">Daily Loss <span id="dailyLossPct">0.00%</span></div><div class="risk-bar"><div class="risk-fill risk-ok" id="dailyLossBar" style="width: 0%"></div></div></div>
-                <div style="margin-top: 8px;"><div class="metric-label">Trades <span id="tradesUsed">0/3</span></div><div class="risk-bar"><div class="risk-fill risk-ok" id="tradesBar" style="width: 0%"></div></div></div>
-            </div>
-        </div>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">📈</div>
+    <span>NIFTY Trading System</span>
+  </div>
+  <div class="header-right">
+    <div id="statusBadge" class="status-badge status-disconnected">DISCONNECTED</div>
+    <div class="token-form">
+      <input id="tokenInput" type="password" class="token-input" placeholder="Upstox access token" autocomplete="off" />
+      <button id="connectBtn" class="btn btn-primary">Connect</button>
+      <button id="disconnectBtn" class="btn btn-danger" disabled>Disconnect</button>
     </div>
-    <script>
-        const state = { ws: null, charts: {}, series: {}, signals: [] };
+  </div>
+</header>
 
-        function initCharts() {
-            ['spot', 'call', 'put'].forEach(s => {
-                state.charts[s] = LightweightCharts.createChart(document.getElementById(s + 'Chart'), {
-                    width: document.getElementById(s + 'Chart').clientWidth,
-                    height: 120,
-                    layout: { background: { color: '#0d1117' }, textColor: '#8b949e' },
-                    grid: { vertLines: { color: '#21262d' }, horzLines: { color: '#21262d' } }
-                });
-                state.series[s] = state.charts[s].addLineSeries({ color: '#58a6ff' });
-            });
-        }
+<main>
 
-        function connectWS() {
-            const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-            state.ws = new WebSocket(proto + '//' + window.location.host + '/ws');
-            state.ws.onopen = () => updateStatus('CONNECTED', 'connected');
-            state.ws.onmessage = e => handleMsg(JSON.parse(e.data));
-            state.ws.onclose = () => setTimeout(connectWS, 3000);
-        }
+  <div class="grid-3">
 
-        function handleMsg(msg) {
-            switch (msg.type) {
-                case 'tick': handleTick(msg.data); break;
-                case 'signal': handleSignal(msg.data); break;
-                case 'status': handleStatus(msg.data); break;
-            }
-        }
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><span class="icon">🪙</span> NIFTY 50</div>
+        <span id="niftyBadge" class="badge badge-neutral">NO DATA</span>
+      </div>
+      <div class="price-display">
+        <span class="price-value" id="lastPrice">--</span>
+        <span class="price-change price-flat" id="priceChg">--</span>
+      </div>
+      <div class="meta-row">
+        <div class="meta-item"><span class="meta-label">OI</span><span id="lastOi">--</span></div>
+        <div class="meta-item"><span class="meta-label">Vol</span><span id="lastVol">--</span></div>
+        <div class="meta-item"><span class="meta-label">Updated</span><span id="lastTs">--</span></div>
+        <div class="meta-item"><span class="meta-label">Instrument</span><span id="lastSym">--</span></div>
+      </div>
+    </div>
 
-        function handleTick(tick) {
-            const time = Date.now() / 1000;
-            state.series.spot.setData([...(state.series.spot.data() || []), { time, value: tick.last_price || 0 }]);
-            updateMetrics(tick);
-        }
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><span class="icon">⚡</span> Latest Signal</div>
+        <span id="sigBadge" class="badge badge-neutral">NONE</span>
+      </div>
+      <div id="latestSignalBox" style="margin-top:8px">
+        <div class="empty-state"><span class="big-icon">📡</span>Waiting for signals...</div>
+      </div>
+    </div>
 
-        function handleSignal(sig) {
-            state.signals.unshift(sig);
-            state.signals = state.signals.slice(0, 10);
-            renderSignals();
-        }
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><span class="icon">🛡️</span> Risk Status</div>
+        <span id="riskIndicator" class="badge badge-ok">OK</span>
+      </div>
+      <div class="risk-grid">
+        <div class="risk-metric">
+          <div class="risk-metric-value" id="statTicks">0</div>
+          <div class="risk-metric-label">Ticks</div>
+        </div>
+        <div class="risk-metric">
+          <div class="risk-metric-value" id="statTrades">0</div>
+          <div class="risk-metric-label">Trades Today</div>
+        </div>
+        <div class="risk-metric">
+          <div class="risk-metric-value price-up" id="statPnl">+0.00</div>
+          <div class="risk-metric-label">P&L</div>
+        </div>
+        <div class="risk-metric">
+          <div class="risk-metric-value" id="riskDailyLoss">0.00%</div>
+          <div class="risk-metric-label">Daily Loss</div>
+        </div>
+        <div class="risk-metric">
+          <div class="risk-metric-value" id="riskTrades">0/3</div>
+          <div class="risk-metric-label">Trade Cap</div>
+        </div>
+        <div class="risk-metric">
+          <div class="risk-metric-value" id="maxDailyLoss">4%</div>
+          <div class="risk-metric-label">Max Daily Loss</div>
+        </div>
+      </div>
+    </div>
 
-        function handleStatus(data) {
-            const lossPct = (data.risk_status?.daily_loss_pct || 0) * 100;
-            document.getElementById('dailyLossPct').textContent = lossPct.toFixed(2) + '%';
-            document.getElementById('dailyLossBar').style.width = Math.min(lossPct / 4 * 100, 100) + '%';
-            document.getElementById('dailyLossBar').className = 'risk-fill ' + (lossPct < 2 ? 'risk-ok' : lossPct < 3.5 ? 'risk-warning' : 'risk-danger');
-            document.getElementById('tradesUsed').textContent = (data.risk_status?.trades_today || 0) + '/3';
-        }
+  </div>
 
-        function updateMetrics(tick) {
-            if (tick.pcr !== undefined) {
-                document.getElementById('pcrValue').textContent = tick.pcr.toFixed(2);
-                document.getElementById('pcrValue').className = 'metric-value ' + (tick.pcr > 1.2 ? 'bullish' : tick.pcr < 0.8 ? 'bearish' : 'neutral');
-            }
-            if (tick.pcr_trend) document.getElementById('pcrTrend').textContent = tick.pcr_trend;
-        }
+  <div class="top-row">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><span class="icon">📊</span> Price Chart</div>
+        <div style="display:flex;gap:6px;align-items:center" id="chartZoomControls">
+          <span style="font-size:.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em">Zoom:</span>
+          <button class="btn btn-ghost chart-zoom-btn" data-points="100">1m</button>
+          <button class="btn btn-ghost chart-zoom-btn active" data-points="200" style="color:var(--accent-blue);border-color:var(--accent-blue)">3m</button>
+          <button class="btn btn-ghost chart-zoom-btn" data-points="500">10m</button>
+          <button class="btn btn-ghost chart-zoom-btn" data-points="Infinity">All</button>
+        </div>
+      </div>
+      <div class="chart-container">
+        <canvas id="priceChart"></canvas>
+      </div>
+    </div>
 
-        function renderSignals() {
-            const list = document.getElementById('signalsList');
-            if (!state.signals.length) return list.innerHTML = '<div style="color:#484f58;font-size:12px;">No signals</div>';
-            list.innerHTML = state.signals.map(s => '<div class="signal-card ' + (s.side || '').toLowerCase() + '"><div class="signal-header"><span class="signal-side ' + (s.side || '').toLowerCase() + '">' + (s.side || '') + '</span><span>' + (new Date(s.timestamp).toLocaleTimeString('en-IN', { hour12: false })) + '</span></div><div>' + (s.trading_bias || 'NEUTRAL') + '</div></div>').join('');
-        }
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><span class="icon">📦</span> Volume / OI</div>
+        <span id="volBadge" class="badge badge-neutral">--</span>
+      </div>
+      <div class="chart-container">
+        <canvas id="volumeChart"></canvas>
+      </div>
+    </div>
+  </div>
 
-        function updateStatus(text, cls) {
-            document.getElementById('statusBadge').textContent = text;
-            document.getElementById('statusBadge').className = 'status-badge status-' + cls;
-        }
+  <div class="bottom-row">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><span class="icon">⚡</span> Signals Feed <span id="signalCountLabel" style="font-size:.7rem;color:var(--text-muted)">(0)</span></div>
+        <button class="btn btn-ghost" id="clearSignalsBtn">Clear</button>
+      </div>
+      <div class="list-container">
+        <div id="signalList">
+          <div class="empty-state"><span class="big-icon">📡</span>No signals — hit <strong>Simulate</strong> or connect live data</div>
+        </div>
+      </div>
+    </div>
 
-        async function connect() {
-            const token = document.getElementById('tokenInput').value.trim();
-            if (!token) return alert('Enter access token');
-            updateStatus('CONNECTING', 'connecting');
-            await fetch('/api/token', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ access_token: token }) });
-            await fetch('/api/connect', { method: 'POST' });
-        }
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><span class="icon">🖥️</span> Logs</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button class="btn btn-success" id="simBtn">Simulate Tick</button>
+          <button class="btn btn-ghost" id="simMultiple">+10 Ticks</button>
+          <button class="btn btn-ghost" id="clearLogsBtn">Clear</button>
+        </div>
+      </div>
+      <div class="log-panel" id="logPanel"><div id="logList"></div></div>
+    </div>
+  </div>
 
-        async function disconnect() {
-            await fetch('/api/disconnect', { method: 'POST' });
-            updateStatus('DISCONNECTED', 'disconnected');
-        }
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title"><span class="icon">🧪</span> Quick Simulation</div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <input id="simSym" type="text" value="NSE_INDEX|NIFTY 50" style="background:var(--bg-tertiary);border:1px solid var(--border-color);color:var(--text-primary);padding:7px 12px;border-radius:var(--radius-sm);font-family:var(--font-mono);font-size:.8rem;width:220px" />
+      <input id="simPrice" type="number" step="0.05" placeholder="Price" style="background:var(--bg-tertiary);border:1px solid var(--border-color);color:var(--text-primary);padding:7px 12px;border-radius:var(--radius-sm);font-family:var(--font-mono);font-size:.8rem;width:110px" />
+      <input id="simOI" type="number" placeholder="OI" style="background:var(--bg-tertiary);border:1px solid var(--border-color);color:var(--text-primary);padding:7px 12px;border-radius:var(--radius-sm);font-family:var(--font-mono);font-size:.8rem;width:100px" />
+      <button id="simTickBtn" class="btn btn-success">Simulate Tick</button>
+      <button id="simBurstBtn" class="btn btn-ghost">+10 Burst</button>
+    </div>
+  </div>
 
-        async function simulateTick() {
-            const price = 24500 + (Math.random() - 0.5) * 100;
-            await fetch('/api/simulate_tick', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ instrument_key: 'NSE_INDEX|NIFTY 50', symbol: 'NIFTY', last_price: price, volume: 5000 }) });
-        }
+</main>
 
-        async function runTest() {
-            const r = await fetch('/api/e2e_test', { method: 'POST' });
-            const result = await r.json();
-            alert(result.passed ? 'E2E Test PASSED' : 'E2E Test FAILED');
-        }
+<div id="errorBox" class="error-box"></div>
 
-        initCharts();
-        connectWS();
-        fetch('/api/status').then(r => r.json()).then(handleStatus);
-    </script>
+<script src="/static/js/app.js?v=4.0.0"></script>
 </body>
 </html>

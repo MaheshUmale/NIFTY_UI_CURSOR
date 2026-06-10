@@ -1,15 +1,10 @@
-"""Async WebSocket V3 client for Upstox market data.
+"""Async WebSocket V3 client for Upstox market data using official SDK.
 
-Connects to ``wss://ws.upstox.com/feed/market-data-feed/v3``,
-subscribes to instrument keys, and pushes ticks into a ``MarketBuffer``
-via a registered callback.
+Uses ``upstox_client.MarketDataStreamerV3`` with access_token-in-Configuration
+(authorization header), subscribes in ``on_open``, and normalizes the nested
+``feeds[x].fullFeed.marketFF`` JSON into our internal tick dict.
 
-Reconnection uses exponential backoff (1s → 2s → 4s → 8s → 16s → 30s max).
-After 5 consecutive failures, raises ``IngestionFatalError``.
-
-Source citation:
-    > src/data/AGENTS.md — Async WebSocket, token subscription, reconnection
-      with exponential backoff, backpressure via ring buffer.
+Source: https://upstox.com/developer/api-documentation/streamer-function
 """
 from __future__ import annotations
 
@@ -17,42 +12,22 @@ import asyncio
 import json
 from typing import Any, Callable
 
-import websockets
+import upstox_client
 
-from src.utils.exception_handler import IngestionFatalError, wrap_requests_exception
+from src.utils.exception_handler import IngestionFatalError
 from src.utils.logger import get_logger
 
 from .market_buffer import MarketBuffer
 
 logger = get_logger(__name__)
 
-# ---------------------------------------------------------------------------
-# Constants
-# ---------------------------------------------------------------------------
-
-WS_URL: str = "wss://ws.upstox.com/feed/market-data-feed/v3"
+WS_URL: str = "wss://ws-api.upstox.com/v3/feed/marketdata"
 MAX_RECONNECT_ATTEMPTS: int = 5
-BASE_BACKOFF_SEC: float = 1.0
-MAX_BACKOFF_SEC: float = 30.0
-
-
-# ---------------------------------------------------------------------------
-# Client
-# ---------------------------------------------------------------------------
+BASE_BACKOFF_SEC: int = 2
 
 
 class WebSocketClient:
-    """Async WebSocket V3 client.
-
-    Parameters
-    ----------
-    token : str
-        Upstox access token (``Bearer`` value).
-    tick_handler : Callable
-        Async callback invoked on each tick: ``await handler(tick: dict)``.
-    buffer : MarketBuffer
-        Ring buffer where each tick is also pushed.
-    """
+    """Thin async wrapper around ``upstox_client.MarketDataStreamerV3``."""
 
     def __init__(
         self,
@@ -63,123 +38,166 @@ class WebSocketClient:
         self._token = token
         self._tick_handler = tick_handler
         self._buffer = buffer
-        self._ws: websockets.WebSocketClientProtocol | None = None
+        self._streamer: upstox_client.MarketDataStreamerV3 | None = None
         self._subscribed_keys: list[str] = []
-        self._running: bool = False
+        self._running_event: asyncio.Event | None = None
+        self._loop: asyncio.AbstractEventLoop | None = None
+        self._reconnect_count: int = 0
 
     # ------------------------------------------------------------------
     # Lifecycle
     # ------------------------------------------------------------------
 
     async def connect(self) -> None:
-        """Connect to the WebSocket and start processing ticks.
+        """Create the SDK streamer and block until :meth:`disconnect`."""
+        self._loop = asyncio.get_running_loop()
+        self._running_event = asyncio.Event()
 
-        This method blocks until the connection is closed or fails
-        unrecoverably. Launch as::
+        configuration = upstox_client.Configuration()
+        configuration.access_token = self._token
+        logger.info("Initializing Upstox API client.")
+        logger.debug("Upstox API client configuration: token_present=%s", bool(configuration.access_token))
+        api_client = upstox_client.ApiClient(configuration)
 
-            asyncio.create_task(client.connect())
-        """
-        self._running = True
-        attempt = 0
-        backoff = BASE_BACKOFF_SEC
+        self._streamer = upstox_client.MarketDataStreamerV3(
+            api_client,
+            self._subscribed_keys,
+            "full",
+        )
+        self._streamer.auto_reconnect(True, BASE_BACKOFF_SEC, MAX_RECONNECT_ATTEMPTS)
 
-        while self._running and attempt <= MAX_RECONNECT_ATTEMPTS:
-            try:
-                logger.info("Connecting to WebSocket (attempt %d)", attempt + 1)
-                self._ws = await websockets.connect(
-                    WS_URL,
-                    additional_headers={"Authorization": f"Bearer {self._token}"},
-                    ping_interval=20,
-                    ping_timeout=10,
-                )
-                attempt = 0  # reset on successful connect
-                backoff = BASE_BACKOFF_SEC
+        self._streamer.on("open", self._on_open)
+        self._streamer.on("message", self._on_message)
+        self._streamer.on("error", self._on_error)
+        self._streamer.on("close", self._on_close)
+        self._streamer.on("reconnecting", self._on_reconnecting)
+        self._streamer.on("autoReconnectStopped", self._on_reconnect_stopped)
 
-                # Re-subscribe to previously subscribed keys
-                if self._subscribed_keys:
-                    await self._subscribe(self._subscribed_keys)
-
-                # Message loop
-                async for message in self._ws:
-                    await self._on_message(message)
-                    # Check if window shift was requested by consumer
-                    if self._buffer.is_window_shift_requested:
-                        logger.info("Window shift detected, will re-subscribe on next loop")
-
-                # If we exit the loop cleanly, the connection was closed
-                logger.info("WebSocket connection closed normally")
-                break
-
-            except (websockets.WebSocketException, asyncio.TimeoutError) as exc:
-                attempt += 1
-                logger.warning(
-                    "WebSocket error (attempt %d/%d): %s",
-                    attempt, MAX_RECONNECT_ATTEMPTS, exc,
-                )
-                if attempt > MAX_RECONNECT_ATTEMPTS:
-                    logger.critical("Max reconnect attempts reached")
-                    raise IngestionFatalError(
-                        f"WebSocket reconnection failed after {MAX_RECONNECT_ATTEMPTS} attempts"
-                    ) from exc
-
-                logger.info("Reconnecting in %.1f s...", backoff)
-                await asyncio.sleep(backoff)
-                backoff = min(backoff * 2, MAX_BACKOFF_SEC)
-
-        self._running = False
+        logger.info("Connecting to Upstox V3 stream...")
+        self._streamer.connect()
+        await self._running_event.wait()
 
     async def disconnect(self) -> None:
-        """Close the WebSocket connection gracefully."""
-        self._running = False
-        if self._ws is not None:
-            await self._ws.close()
-            self._ws = None
-            logger.info("WebSocket disconnected")
+        """Stop the streamer."""
+        if self._streamer:
+            try:
+                self._streamer.auto_reconnect(False, BASE_BACKOFF_SEC, 0)
+                self._streamer.disconnect()
+            except Exception as exc:
+                logger.error("Disconnect error: %s", exc)
+            self._streamer = None
+        if self._running_event and not self._running_event.is_set():
+            self._running_event.set()
 
     # ------------------------------------------------------------------
     # Subscription
     # ------------------------------------------------------------------
 
     async def subscribe(self, instrument_keys: list[str]) -> None:
-        """Subscribe to market data for the given instrument keys.
-
-        Can be called before or after ``connect()``. If called before,
-        the keys are queued and sent on connect.
-        """
+        """Add keys. Will push to SDK if streamer already exists."""
         self._subscribed_keys = list(set(self._subscribed_keys + instrument_keys))
-        if self._ws is not None:
-            await self._subscribe(instrument_keys)
-
-    async def _subscribe(self, instrument_keys: list[str]) -> None:
-        """Send the subscription request over the WebSocket."""
-        if self._ws is None:
-            return
-
-        payload = json.dumps({
-            "action": "subscribe",
-            "params": {
-                "symbols": instrument_keys,
-                "mode": "full",
-            },
-        })
-        await self._ws.send(payload)
-        logger.debug("Subscribed to %d keys", len(instrument_keys))
+        if self._streamer:
+            self._streamer.subscribe(self._subscribed_keys, "full")
+            logger.info("Subscribed: %s", self._subscribed_keys)
 
     # ------------------------------------------------------------------
-    # Message handling
+    # SDK callbacks (called from SDK internal thread -> bridge to asyncio)
     # ------------------------------------------------------------------
 
-    async def _on_message(self, raw: str) -> None:
-        """Parse and dispatch an incoming tick message."""
-        try:
-            data: dict[str, Any] = json.loads(raw)
-        except json.JSONDecodeError:
-            logger.warning("Failed to parse WebSocket message: %s", raw[:200])
-            return
+    def _on_open(self, *args: Any) -> None:
+        """SDK event open callback — accepts arbitrary structural SDK args."""
+        logger.info("Upstox WebSocket connection established.")
+        if self._subscribed_keys and self._streamer:
+            self._streamer.subscribe(self._subscribed_keys, "full")
 
-        # Push to buffer and call the registered handler
-        self._buffer.push(data)
+    def _on_message(self, message: Any) -> None:
+        """SDK callback — runs on SDK receiver thread."""
+        if not self._loop or self._loop.is_closed():
+            return
+        tick = self._parse_feed(message)
+        if tick is None:
+            return
         try:
-            await self._tick_handler(data)
-        except Exception:
-            logger.exception("Tick handler raised an exception")
+            self._buffer.push(tick)
+        except Exception as exc:
+            logger.error("Buffer push failed: %s", exc)
+        asyncio.run_coroutine_threadsafe(self._tick_handler(tick), self._loop)
+
+    def _on_error(self, error: Any) -> None:
+        logger.error("Upstox WS error: %s", error)
+
+    def _on_close(self, ws: Any = None, close_status_code: Any = None, close_msg: Any = None) -> None:
+        """SDK event close callback — properly tracks object instance mapping via self."""
+        logger.warning(f"Upstox WebSocket connection closed. Code: {close_status_code}, Message: {close_msg}")
+
+    def _on_reconnecting(self, *args: Any, **kwargs: Any) -> None:
+        logger.warning("Upstox reconnecting...")
+
+    def _on_reconnect_stopped(self, *args: Any, **kwargs: Any) -> None:
+        logger.critical("Upstox reconnect budget exhausted.")
+        if self._loop and not self._loop.is_closed():
+            asyncio.run_coroutine_threadsafe(self._raise_fatal(), self._loop)
+
+    async def _raise_fatal(self) -> None:
+        if self._running_event and not self._running_event.is_set():
+            self._running_event.set()
+        raise IngestionFatalError("Reconnect failed after max attempts.")
+
+    # ------------------------------------------------------------------
+    # Feed parser
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _parse_feed(raw: Any) -> dict[str, Any] | None:
+        if isinstance(raw, str):
+            try:
+                raw = json.loads(raw)
+            except json.JSONDecodeError:
+                return None
+        if not isinstance(raw, dict) or raw.get("type") != "live_feed":
+            return None
+
+        feeds = raw.get("feeds") or {}
+        current_ts = raw.get("currentTs") or ""
+
+        for instrument_key, feed_data in feeds.items():
+            # Index feed: fullFeed.indexFF, Options feed: fullFeed.marketFF
+            market_ff = (
+                feed_data.get("fullFeed", {}).get("marketFF")
+                or feed_data.get("fullFeed", {}).get("indexFF")
+                or {}
+            )
+            ltpc = market_ff.get("ltpc") or {}
+
+            ltp = ltpc.get("ltp")
+            if ltp is None:
+                ltp = market_ff.get("atp")
+            if ltp is None:
+                continue
+
+            tick: dict[str, Any] = {
+                "instrument_key": instrument_key,
+                "symbol": instrument_key.split("|")[-1] if "|" in instrument_key else instrument_key,
+                "last_price": float(ltp),
+                "volume": market_ff.get("vtt"),
+                "oi": market_ff.get("oi"),
+                "ltq": ltpc.get("ltq"),
+                "close_price": ltpc.get("cp"),
+                "timestamp": current_ts or str(ltpc.get("ltt", "")),
+                "iv": market_ff.get("iv"),
+                "atp": market_ff.get("atp"),
+                "tbq": market_ff.get("tbq"),
+                "tsq": market_ff.get("tsq"),
+            }
+
+            for k in ("volume", "ltq", "tbq", "tsq", "oi"):
+                val = tick[k]
+                if isinstance(val, str):
+                    try:
+                        tick[k] = int(val)
+                    except ValueError:
+                        pass
+
+            return tick
+
+        return None

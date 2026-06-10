@@ -100,12 +100,17 @@ The project contains the following durable boundaries, each with its own AGENTS.
 | `src/risk/` | Risk gates (VETO POWER), daily loss circuit breaker, SQLite trade journal | Pre-trade validation; capital preservation; audit trail |
 | `src/utils/` | Logger, time helpers, exception wrappers, shared constants | Cross-cutting utilities used by all other modules |
 | `tests/` | Unit and integration tests for all modules | Test coverage requirements; mock data generators |
-| `data/` | Runtime data: SQLite journal DB, instrument cache, tick snapshots | Persistent runtime state; daily refresh of contract master |
-| `logs/` | Application log files (rotated) | Operational observability; error trail; post-mortem evidence |
+| `data/` | Runtime data store: SQLite journal DB, instrument cache (pickle/CSV), tick snapshots | Persistent runtime state; daily-refreshed contract master; append-only audit trail |
+| `logs/` | Application log files (rotated JSON lines) | Operational observability; error trail; post-mortem evidence |
 | `app.py` | FastAPI server — main entry point for E2E live streaming & UI | REST API, WebSocket relay, dashboard serving, tick processing |
-| `static/` | Dashboard UI (HTML/CSS/JS) — real-time trading dashboard | Frontend: live ticks, signals, risk meters, connection panel |
+| `static/` | Dashboard UI assets (HTML/CSS/JS) — real-time trading dashboard | Frontend: live ticks, signals, risk meters, connection panel |
 
-DOX Status (as of 2026-06-09):
+> **Clarification — `data/` vs `src/data/`:** These are NOT duplicates.
+> - `src/data/` — Python source module: instrument CSV loader, async WebSocket V3 client, in-memory ring buffer. Pure ingestion, zero computation.
+> - `data/` — Runtime filesystem store: SQLite DBs, pickled instrument caches, parquet snapshots. Persistent across restarts.
+
+DOX Status (as of 2026-06-10):
+- Root AGENTS.md: ✅ has Child DOX Index — updated data/ vs src/data/ clarification
 - Root AGENTS.md: ✅ has Child DOX Index
 - ALL_DOCS/AGENTS.md: ✅ created
 - config/AGENTS.md: ✅ created
