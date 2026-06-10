@@ -19,6 +19,7 @@ from typing import Any
 
 import upstox_client
 
+from config.strategy_config import ATM_STRIKE_WINDOW
 from src.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -28,9 +29,12 @@ logger = get_logger(__name__)
 # ---------------------------------------------------------------------------
 
 INDEX_KEY: str = "NSE_INDEX|Nifty 50"
-INDEX_FUT_PREFIX: str = "NIFTY"  # used to resolve current-month future
+INDEX_FUT_PREFIX: str = "NIFTY"
 UNIT: str = "minutes"
 INTERVAL: str = "1"
+
+# Cached nearest expiry date for dynamic ATM roll-over
+_nearest_expiry_cache: dict[str, str] = {}  # symbol -> expiry date string (YYYY-MM-DD)
 
 
 # ---------------------------------------------------------------------------
@@ -253,8 +257,9 @@ def _resolve_option_keys(token: str) -> list[str]:
 
         atm = min(strikes, key=lambda x: abs(x - spot))
         idx = strikes.index(atm)
-        start = max(0, idx - 3)
-        end = min(len(strikes), idx + 4)
+        window = ATM_STRIKE_WINDOW
+        start = max(0, idx - window)
+        end = min(len(strikes), idx + window + 1)
         selected = strikes[start:end]
 
         keys: list[str] = []
@@ -266,46 +271,69 @@ def _resolve_option_keys(token: str) -> list[str]:
                 keys.append(str(pe.iloc[0]["instrument_key"]))
         return keys
     except Exception as exc:
-        logger.error("Option key resolution failed: %s", exc)
+logger.error("Option key resolution failed: %s", exc)
         return []
 
 
-def _resolve_index_spot_for_atm(token: str, instrument_master: Any) -> float | None:
-    try:
-        import upstox_client
+# ---------------------------------------------------------------------------
+# Expiry tracking for dynamic ATM roll-over
+# ---------------------------------------------------------------------------
 
-        configuration = upstox_client.Configuration()
-        configuration.access_token = token
-        quote_api = upstox_client.MarketQuoteV3Api(upstox_client.ApiClient(configuration))
-        ltp_resp = quote_api.get_ltp(instrument_key=INDEX_KEY)
-        spot = getattr(getattr(ltp_resp, "data", None), "get", lambda k, d=None: d)(INDEX_KEY)
-        if hasattr(spot, "last_price"):
-            spot = spot.last_price
-        if spot is not None:
-            return float(spot)
+def _get_nearest_expiry_date(token: str, symbol: str = "NIFTY") -> str | None:
+    """Get the nearest expiry date from instrument master, cached by date."""
+    today_str = datetime.now().strftime("%Y-%m-%d")
+    cache_key = f"{symbol}_{today_str}"
+    
+    if cache_key in _nearest_expiry_cache:
+        return _nearest_expiry_cache[cache_key]
+    
+    try:
+        import gzip
+        import io
+
+        import pandas as pd
+        import requests
+
+        url = "https://assets.upstox.com/market-quote/instruments/exchange/NSE.json.gz"
+        resp = requests.get(url, timeout=10)
+        resp.raise_for_status()
+        with gzip.GzipFile(fileobj=io.BytesIO(resp.content)) as fh:
+            df = pd.read_json(fh)
+
+        opt_df = df[(df["name"] == symbol) & (df["instrument_type"].isin(["CE", "PE"]))].copy()
+        if opt_df.empty:
+            logger.error("No options found for %s to determine expiry", symbol)
+            return None
+
+        opt_df["expiry"] = pd.to_datetime(opt_df["expiry"], origin="unix", unit="ms")
+        nearest = opt_df["expiry"].min()
+        expiry_str = nearest.strftime("%Y-%m-%d")
+        _nearest_expiry_cache[cache_key] = expiry_str
+        logger.info("Cached nearest expiry for %s: %s", symbol, expiry_str)
+        return expiry_str
     except Exception as exc:
-        logger.warning("LTP spot fetch failed: %s", exc)
-
-    try:
-        fut_key = _resolve_nifty_future_key(token)
-        if fut_key and instrument_master is not None:
-            fut_row = instrument_master[instrument_master["instrument_key"] == fut_key]
-            if not fut_row.empty:
-                return float(fut_row.iloc[0].get("last_price", fut_row.iloc[0].get("ltp", 0)) or 0) or None
-    except Exception as exc:
-        logger.warning("Fallback spot resolution failed: %s", exc)
-
-    return None
-
-
-def _num(val: Any) -> float | None:
-    if val is None:
+        logger.error("Failed to get nearest expiry: %s", exc)
         return None
-    try:
-        return float(val)
-    except (TypeError, ValueError):
-        return None
+
+
+def is_expiry_passed(symbol: str = "NIFTY") -> bool:
+    """Check if the cached nearest expiry date has passed."""
+    today_str = datetime.now().strftime("%Y-%m-%d")
+    cache_key = f"{symbol}_{today_str}"
+    cached_expiry = _nearest_expiry_cache.get(cache_key)
+    
+    if cached_expiry:
+        return datetime.now().strftime("%Y-%m-%d") > cached_expiry
+    return False
 
 
 def resolve_option_keys_for_history(token: str) -> list[str]:
-    return _resolve_option_keys(token)
+    """Resolve ATM ± window option keys for NIFTY with expiry awareness."""
+    keys = _resolve_option_keys(token)
+    
+    if keys and is_expiry_passed():
+        logger.info("Expiry passed, triggering roll-over to next expiry")
+        _nearest_expiry_cache.clear()
+        keys = _resolve_option_keys(token)
+    
+    return keys

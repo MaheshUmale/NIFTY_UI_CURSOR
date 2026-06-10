@@ -160,6 +160,7 @@ header {
 .status-connected { background: rgba(16,185,129,.12); color: var(--accent-green); border: 1px solid rgba(16,185,129,.25); }
 .status-disconnected { background: rgba(107,114,128,.1); color: var(--text-muted); border: 1px solid var(--border-color); }
 .status-error { background: rgba(239,68,68,.12); color: var(--accent-red); border: 1px solid rgba(239,68,68,.25); }
+.status-stale { background: rgba(245,158,11,.12); color: var(--accent-yellow); border: 1px solid rgba(245,158,11,.25); }
 
 main {
   max-width: 1440px;

@@ -42,6 +42,7 @@
         <div class="meta-item"><span class="meta-label">OI</span><span id="lastOi">--</span></div>
         <div class="meta-item"><span class="meta-label">Vol</span><span id="lastVol">--</span></div>
         <div class="meta-item"><span class="meta-label">Updated</span><span id="lastTs">--</span></div>
+        <div class="meta-item"><span class="meta-label">Source</span><span id="volSource">--</span></div>
         <div class="meta-item"><span class="meta-label">Instrument</span><span id="lastSym">--</span></div>
       </div>
     </div>
@@ -119,10 +120,17 @@
     </div>
 
     <div class="card">
-      <div class="card-header">
-        <div class="card-title"><span class="icon">🎯</span> ATM Options (CE / PE)</div>
-        <span id="atmBadge" class="badge badge-neutral">NO DATA</span>
-      </div>
+<div class="card-header">
+         <div class="card-title"><span class="icon">🎯</span> ATM Options (CE / PE)</div>
+         <div style="display:flex;gap:6px;align-items:center">
+           <select id="atmDepthSelect" class="btn btn-ghost" style="font-size:.7rem;padding:4px 10px">
+             <option value="1">±1</option>
+             <option value="2">±2</option>
+             <option value="3" selected>±3</option>
+           </select>
+           <span id="atmBadge" class="badge badge-neutral">NO DATA</span>
+         </div>
+       </div>
       <div class="chart-container">
         <canvas id="atmOptionsChart"></canvas>
       </div>

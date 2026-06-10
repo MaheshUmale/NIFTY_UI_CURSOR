@@ -4,6 +4,7 @@ const signals = [];
 const MAX_SIGNALS = 50;
 const logLines = [];
 const MAX_LOG = 80;
+let lastTickTs = null;
 
 let priceChart;
 let volumeChart;
@@ -36,6 +37,9 @@ function bindControls() {
      trimChart(tickHistory, maxPoints);
      trimChart(atmHistory, maxPoints);
      updateCharts();
+   });
+   document.getElementById('atmDepthSelect').addEventListener('change', (e) => {
+     addLog('info', `ATM depth changed to ±${e.target.value} strikes`);
    });
 
    setZoomFromWindow(tickHistory);
@@ -215,25 +219,28 @@ function updateCharts() {
 }
 
 function initWs() {
-  const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
-  const ws = new WebSocket(`${proto}//${location.host}/ws`);
-  ws.onopen = () => addLog('info', 'WebSocket connected to server');
-  ws.onclose = () => {
-    addLog('warn', 'WebSocket closed');
-    updateStatus('disconnected');
-    document.getElementById('connectBtn').disabled = false;
-    document.getElementById('disconnectBtn').disabled = true;
-  };
-  ws.onerror = () => { addLog('error', 'WebSocket error'); updateStatus('error'); };
-  ws.onmessage = (ev) => {
-    let msg;
-    try { msg = JSON.parse(ev.data); } catch { return; }
-    const ts = msg.ts ? new Date(msg.ts).toLocaleTimeString() : new Date().toLocaleTimeString();
-    if (msg.type === 'status') handleStatus(msg.data);
-    else if (msg.type === 'tick') handleTick(msg.data, ts);
-    else if (msg.type === 'signal') handleSignal(msg.data, ts);
-  };
-}
+   const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+   const ws = new WebSocket(`${proto}//${location.host}/ws`);
+   ws.onopen = () => { addLog('info', 'WebSocket connected to server'); updateConnectionHealth(); };
+   ws.onclose = () => {
+     addLog('warn', 'WebSocket closed');
+     updateStatus('disconnected');
+     document.getElementById('connectBtn').disabled = false;
+     document.getElementById('disconnectBtn').disabled = true;
+   };
+   ws.onerror = () => { addLog('error', 'WebSocket error'); updateStatus('error'); };
+   ws.onmessage = (ev) => {
+     let msg;
+     try { msg = JSON.parse(ev.data); } catch { return; }
+     lastTickTs = Date.now();
+     updateConnectionHealth();
+     const ts = msg.ts ? new Date(msg.ts).toLocaleTimeString() : new Date().toLocaleTimeString();
+     if (msg.type === 'status') handleStatus(msg.data);
+     else if (msg.type === 'tick') handleTick(msg.data, ts);
+     else if (msg.type === 'signal') handleSignal(msg.data, ts);
+   };
+   setInterval(updateConnectionHealth, 1000);
+ }
 
 async function loadInitialStatus() {
   try {
@@ -298,6 +305,19 @@ function updateStatus(state) {
   }
 }
 
+function updateConnectionHealth() {
+   const badge = document.getElementById('statusBadge');
+   if (!lastTickTs) return;
+   const ageSec = (Date.now() - lastTickTs) / 1000;
+   if (ageSec > 15) {
+     badge.classList.add('status-stale');
+     badge.classList.remove('status-connected', 'status-disconnected', 'status-error');
+     badge.innerHTML = '<span class="dot"></span>STALE';
+   } else if (ageSec > 5) {
+     badge.classList.add('status-warn');
+   }
+ }
+
 function handleStatus(data) {
   updateStatus(data.connected ? 'connected' : 'disconnected');
   const errEl = document.getElementById('errorBox');
@@ -332,23 +352,32 @@ function handleTick(tick, ts) {
   const price = tick.last_price;
   if (!price) return;
 
-  if (isNifty) {
-    const sym = 'NIFTY 50';
-    const closePrice = tick.close_price;
-    const prev = closePrice || price;
-    const diff = price - prev;
-    const chgPct = prev ? ((diff / prev) * 100).toFixed(3) : '0.000';
-    const sign = diff > 0 ? '+' : '';
-    document.getElementById('lastSym').textContent = sym;
-    const priceEl = document.getElementById('lastPrice');
-    priceEl.textContent = price.toFixed(2);
-    priceEl.previousElementSibling && (priceEl.previousElementSibling.textContent = sym);
-    document.getElementById('priceChg').textContent = `${sign}${diff.toFixed(2)} (${sign}${chgPct}%)`;
-    document.getElementById('priceChg').className = 'price-change ' + (diff > 0 ? 'price-up' : diff < 0 ? 'price-down' : 'price-flat');
-    document.getElementById('lastOi').textContent = formatNum(tick.oi);
-    document.getElementById('lastVol').textContent = formatNum(tick.volume);
-    document.getElementById('lastTs').textContent = ts;
-    const tickEl = document.getElementById('statTicks');
+if (isNifty) {
+     const sym = 'NIFTY 50';
+     const closePrice = tick.close_price;
+     const prev = closePrice || price;
+     const diff = price - prev;
+     const chgPct = prev ? ((diff / prev) * 100).toFixed(3) : '0.000';
+     const sign = diff > 0 ? '+' : '';
+     document.getElementById('lastSym').textContent = sym;
+     const priceEl = document.getElementById('lastPrice');
+     priceEl.textContent = price.toFixed(2);
+     priceEl.previousElementSibling && (priceEl.previousElementSibling.textContent = sym);
+     document.getElementById('priceChg').textContent = `${sign}${diff.toFixed(2)} (${sign}${chgPct}%)`;
+     document.getElementById('priceChg').className = 'price-change ' + (diff > 0 ? 'price-up' : diff < 0 ? 'price-down' : 'price-flat');
+     document.getElementById('lastOi').textContent = formatNum(tick.oi);
+     document.getElementById('lastVol').textContent = formatNum(tick.volume);
+     document.getElementById('lastTs').textContent = ts;
+     if (tick.volume_source === 'future_proxy') {
+       document.getElementById('volBadge').textContent = 'Proxy';
+       document.getElementById('volBadge').className = 'badge badge-warn';
+       document.getElementById('volSource').textContent = ts;
+     } else {
+       document.getElementById('volBadge').textContent = 'Actual';
+       document.getElementById('volBadge').className = 'badge badge-neutral';
+       document.getElementById('volSource').textContent = '--';
+     }
+     const tickEl = document.getElementById('statTicks');
     tickEl.textContent = formatNum((parseInt(tickEl.textContent.replace(/,/g, '')) || 0) + 1);
     tickHistory.labels.push(ts);
     tickHistory.prices.push(price);
