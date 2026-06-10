@@ -32,3 +32,11 @@ Thumbs.db
 dist/
 build/
 *.exe
+
+# Virtual environment artifacts
+lib/
+Lib/
+Scripts/
+pyvenv.cfg
+**/site-packages/
+.playwright-mcp/
