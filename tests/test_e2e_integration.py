@@ -56,7 +56,19 @@ def _get_access_token() -> str:
     token = env.get("Upstox_access_token", "")
     if not token:
         pytest.skip("No Upstox_access_token in config/.env — skipping live tests")
-    return token.strip()
+    token = token.strip()
+    import base64, json as _json
+    try:
+        payload_b64 = token.split(".")[1]
+        payload_b64 += "=" * (-len(payload_b64) % 4)
+        payload = _json.loads(base64.urlsafe_b64decode(payload_b64))
+        import time
+        exp = payload.get("exp")
+        if exp and time.time() > exp:
+            pytest.skip(f"Upstox access token expired at {exp} — skipping live tests")
+    except Exception:
+        pass
+    return token
 
 
 # ---------------------------------------------------------------------------
@@ -93,11 +105,11 @@ class TestBrokerURLReachability:
         assert WS_URL.startswith("wss://"), f"Expected wss:// URL, got {WS_URL}"
 
     def test_instrument_csv_url_scheme(self) -> None:
-        """Instrument CSV URL uses https:// (secure)."""
-        from src.data.instrument_loader import INSTRUMENT_CSV_URL
+        """Instrument JSON URL uses https:// (secure)."""
+        from src.data.instrument_loader import INSTRUMENT_JSON_URL
 
-        assert INSTRUMENT_CSV_URL.startswith("https://"), (
-            f"Expected https:// URL, got {INSTRUMENT_CSV_URL}"
+        assert INSTRUMENT_JSON_URL.startswith("https://"), (
+            f"Expected https:// URL, got {INSTRUMENT_JSON_URL}"
         )
 
 

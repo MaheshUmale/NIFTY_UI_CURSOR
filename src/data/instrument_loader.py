@@ -1,16 +1,17 @@
-"""Instrument master CSV loader with daily cache.
+"""Instrument master JSON loader with daily cache.
 
-Downloads the Upstox instrument CSV, parses it, caches by UTC day, and
+Downloads the Upstox instrument JSON, parses it, caches by UTC day, and
 provides symbol → instrument_key resolution for supported indices.
 
 Source citation:
     > src/data/AGENTS.md — Cache invariants, symbol → instrument_key resolution.
-    > ALL_DOCS/UPSTOX-api-docs.json — CSV format reference.
+    > ALL_DOCS/UPSTOX-api-docs.json — JSON format reference.
+    > config/.env — Upstox API credentials and access token.
 """
 from __future__ import annotations
 
-import csv
-import io
+import gzip
+import json
 import pickle
 import time
 from datetime import date, datetime, timezone
@@ -28,8 +29,8 @@ logger = get_logger(__name__)
 # Constants
 # ---------------------------------------------------------------------------
 
-INSTRUMENT_CSV_URL: str = (
-    "https://assets.upstox.com/market-quote/instruments/exchange/complete.csv.gz"
+INSTRUMENT_JSON_URL: str = (
+    "https://assets.upstox.com/market-quote/instruments/exchange/NSE.json.gz"
 )
 NSE_FO_PREFIX: str = "NSE_FO"
 CACHE_TTL_HOURS: int = 24
@@ -83,11 +84,11 @@ class InstrumentLoader:
             self._loaded = True
             return self._instruments
 
-        # Download and parse the CSV
+        # Download and parse the JSON
         try:
-            logger.info("Downloading instrument CSV from %s", INSTRUMENT_CSV_URL)
-            raw = self._download_csv()
-            self._instruments = self._parse_csv(raw)
+            logger.info("Downloading instrument JSON from %s", INSTRUMENT_JSON_URL)
+            raw = self._download_json()
+            self._instruments = self._parse_json(raw)
             self._save_cache(cache_path, self._instruments)
             self._loaded = True
             logger.info("Loaded %d NSE_FO instruments", len(self._instruments))
@@ -141,30 +142,38 @@ class InstrumentLoader:
         age_hours = (time.time() - mtime) / 3600
         return age_hours < CACHE_TTL_HOURS
 
-    def _download_csv(self) -> str:
-        """Download the compressed CSV and return its decompressed text."""
+    def _download_json(self) -> list[dict[str, Any]]:
+        """Download the compressed JSON and return its decompressed object."""
         try:
-            resp = requests.get(INSTRUMENT_CSV_URL, timeout=60)
+            resp = requests.get(INSTRUMENT_JSON_URL, timeout=60)
             resp.raise_for_status()
-            import gzip
-
             decompressed = gzip.decompress(resp.content)
-            return decompressed.decode("utf-8")
+            raw = decompressed.decode("utf-8")
+            return json.loads(raw)
         except requests.RequestException as exc:
-            wrapped = wrap_requests_exception(exc, context="download_instrument_csv")
-            logger.exception("Failed to download instrument CSV")
+            wrapped = wrap_requests_exception(exc, context="download_instrument_json")
+            logger.exception("Failed to download instrument JSON")
             raise wrapped from exc
+        except (json.JSONDecodeError, ValueError) as exc:
+            logger.exception("Failed to parse instrument JSON")
+            raise IngestionFatalError(f"Invalid instrument JSON: {exc}") from exc
 
-    def _parse_csv(self, raw_csv: str) -> dict[str, dict[str, Any]]:
-        """Parse the CSV text and return only NSE_FO instruments keyed by tradingsymbol."""
-        reader = csv.DictReader(io.StringIO(raw_csv))
-        instruments: dict[str, dict[str, Any]] = {}
-        for row in reader:
-            if row.get("exchange_segment", "").startswith(NSE_FO_PREFIX):
-                symbol = row.get("tradingsymbol", "")
-                if symbol:
-                    instruments[symbol] = dict(row)
-        return instruments
+    def _parse_json(self, instruments: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
+        """Parse the JSON list and return only NSE_FO instruments keyed by tradingsymbol."""
+        parsed: dict[str, dict[str, Any]] = {}
+        for row in instruments:
+            segment = str(row.get("segment", ""))
+            if segment != "NSE_FO":
+                continue
+            symbol = str(row.get("trading_symbol", ""))
+            if not symbol:
+                continue
+            rec = dict(row)
+            expiry_ms = rec.get("expiry")
+            if isinstance(expiry_ms, (int, float)) and expiry_ms > 1e12:
+                rec["expiry"] = datetime.fromtimestamp(expiry_ms / 1000, tz=timezone.utc).date().isoformat()
+            parsed[symbol] = rec
+        return parsed
 
     def _save_cache(self, cache_path: Path, data: dict[str, Any]) -> None:
         """Serialize to pickle."""
