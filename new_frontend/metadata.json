@@ -1,0 +1,6 @@
+{
+  "name": "Day Trader Options Terminal",
+  "description": "An interactive, low-latency options trading platform with side-by-side Spot, CE, and PE charts, OI underlay, order book depth, automatic alerts, and instant scalp execution.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
