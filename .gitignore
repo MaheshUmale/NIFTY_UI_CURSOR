@@ -7,7 +7,10 @@ venv/
 *.egg-info/
 .coverage
 htmlcov/
-
+*.log
+*.pkl
+.kilo/
+ALL_DOCS/
 # Secrets
 config/.env
 config/.access_token.json

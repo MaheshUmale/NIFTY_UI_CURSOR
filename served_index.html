@@ -1,0 +1,163 @@
+﻿﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>NIFTY Trading System — Live Dashboard</title>
+<link rel="stylesheet" href="/static/css/style.css" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js">
+</script>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">📈</div>
+    <span>NIFTY Trading System</span>
+  </div>
+  <div class="header-right">
+    <div id="statusBadge" class="status-badge status-disconnected">DISCONNECTED</div>
+    <div class="token-form">
+      <input id="tokenInput" type="password" class="token-input" placeholder="Upstox access token" autocomplete="off" />
+      <button id="connectBtn" class="btn btn-primary">Connect</button>
+      <button id="disconnectBtn" class="btn btn-danger" disabled>Disconnect</button>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <div class="grid-3">
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><span class="icon">🪙</span> NIFTY 50</div>
+        <span id="niftyBadge" class="badge badge-neutral">NO DATA</span>
+      </div>
+      <div class="price-display">
+        <span class="price-value" id="lastPrice">--</span>
+        <span class="price-change price-flat" id="priceChg">--</span>
+      </div>
+      <div class="meta-row">
+        <div class="meta-item"><span class="meta-label">OI</span><span id="lastOi">--</span></div>
+        <div class="meta-item"><span class="meta-label">Vol</span><span id="lastVol">--</span></div>
+        <div class="meta-item"><span class="meta-label">Updated</span><span id="lastTs">--</span></div>
+        <div class="meta-item"><span class="meta-label">Instrument</span><span id="lastSym">--</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><span class="icon">⚡</span> Latest Signal</div>
+        <span id="sigBadge" class="badge badge-neutral">NONE</span>
+      </div>
+      <div id="latestSignalBox" style="margin-top:8px">
+        <div class="empty-state"><span class="big-icon">📡</span>Waiting for signals...</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><span class="icon">🛡️</span> Risk Status</div>
+        <span id="riskIndicator" class="badge badge-ok">OK</span>
+      </div>
+      <div class="risk-grid">
+        <div class="risk-metric">
+          <div class="risk-metric-value" id="statTicks">0</div>
+          <div class="risk-metric-label">Ticks</div>
+        </div>
+        <div class="risk-metric">
+          <div class="risk-metric-value" id="statTrades">0</div>
+          <div class="risk-metric-label">Trades Today</div>
+        </div>
+        <div class="risk-metric">
+          <div class="risk-metric-value price-up" id="statPnl">+0.00</div>
+          <div class="risk-metric-label">P&L</div>
+        </div>
+        <div class="risk-metric">
+          <div class="risk-metric-value" id="riskDailyLoss">0.00%</div>
+          <div class="risk-metric-label">Daily Loss</div>
+        </div>
+        <div class="risk-metric">
+          <div class="risk-metric-value" id="riskTrades">0/3</div>
+          <div class="risk-metric-label">Trade Cap</div>
+        </div>
+        <div class="risk-metric">
+          <div class="risk-metric-value" id="maxDailyLoss">4%</div>
+          <div class="risk-metric-label">Max Daily Loss</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="top-row">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><span class="icon">📊</span> Price Chart</div>
+        <div style="display:flex;gap:6px;align-items:center" id="chartZoomControls">
+          <span style="font-size:.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em">Zoom:</span>
+          <button class="btn btn-ghost chart-zoom-btn chart-zoom-btn" data-points="1">1m</button>
+          <button class="btn btn-ghost chart-zoom-btn active" data-points="3" style="color:var(--accent-blue);border-color:var(--accent-blue)">3m</button>
+          <button class="btn btn-ghost chart-zoom-btn" data-points="10">10m</button>
+          <button class="btn btn-ghost chart-zoom-btn" data-points="Infinity">All</button>
+        </div>
+      </div>
+      <div class="chart-container">
+        <canvas id="priceChart"></canvas>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><span class="icon">📦</span> Volume / OI</div>
+        <span id="volBadge" class="badge badge-neutral">--</span>
+      </div>
+      <div class="chart-container">
+        <canvas id="volumeChart"></canvas>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><span class="icon">🎯</span> ATM Options (CE / PE)</div>
+        <span id="atmBadge" class="badge badge-neutral">NO DATA</span>
+      </div>
+      <div class="chart-container">
+        <canvas id="atmOptionsChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-row">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><span class="icon">⚡</span> Signals Feed <span id="signalCountLabel" style="font-size:.7rem;color:var(--text-muted)">(0)</span></div>
+        <button class="btn btn-ghost" id="clearSignalsBtn">Clear</button>
+      </div>
+      <div class="list-container">
+        <div id="signalList">
+          <div class="empty-state"><span class="big-icon">📡</span>No signals — connect live data</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><span class="icon">🖥️</span> Logs</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button class="btn btn-ghost" id="clearLogsBtn">Clear</button>
+        </div>
+      </div>
+      <div class="log-panel" id="logPanel"><div id="logList"></div></div>
+    </div>
+  </div>
+
+</main>
+
+<div id="errorBox" class="error-box"></div>
+
+<script src="/static/js/app.js?v=6.0.0"></script>
+</body>
+</html>
+
