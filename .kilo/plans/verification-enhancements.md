@@ -38,6 +38,7 @@
 ### Task A4 — Prove zoom buttons behave correctly
 **Owner:** UI
 **Files:** `static/js/app.js`, `static/index.html`
+**Status:** ✅ Completed
 **Steps:**
 1. With < 10 data points loaded, click `10m` and `All` — chart must render all points, no empty gap.
 2. Resize window below 900px — default zoom must fall back to 3 points.
@@ -46,6 +47,7 @@
 ### Task A5 — Prove simulation routes are gone
 **Owner:** backend + UI
 **Files:** `app.py`, `static/index.html`, `static/js/app.js`
+**Status:** ✅ Completed
 **Steps:**
 1. `grep -r "simulate_tick|simulateTick|simulateMultiple|Quick Simulation" static/ app.py` → zero matches.
 2. `grep -r "/api/e2e_test\|/api/simulate_tick" app.py` → zero matches.

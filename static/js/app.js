@@ -1,5 +1,5 @@
-const tickHistory = { labels: [], prices: [], volumes: [], maxPoints: 10 };
-const atmHistory = { labels: [], ce: [], pe: [], maxPoints: 10 };
+const tickHistory = { labels: [], prices: [], volumes: [], maxPoints: 10, manualZoom: false };
+const atmHistory = { labels: [], ce: [], pe: [], maxPoints: 10, manualZoom: false };
 const signals = [];
 const MAX_SIGNALS = 50;
 const logLines = [];
@@ -17,34 +17,36 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function bindControls() {
-  document.getElementById('connectBtn').addEventListener('click', connectUpstox);
-  document.getElementById('disconnectBtn').addEventListener('click', disconnectUpstox);
-  document.getElementById('clearLogsBtn').addEventListener('click', clearLogs);
-  document.getElementById('clearSignalsBtn').addEventListener('click', () => { signals.length = 0; renderSignals(); });
-  document.getElementById('chartZoomControls').addEventListener('click', (e) => {
-    if (!e.target.classList.contains('chart-zoom-btn')) return;
-    document.querySelectorAll('.chart-zoom-btn').forEach(b => {
-      b.style.color = ''; b.style.borderColor = ''; b.classList.remove('active');
-    });
-    e.target.style.color = 'var(--accent-blue)';
-    e.target.style.borderColor = 'var(--accent-blue)';
-    e.target.classList.add('active');
-    const pts = parseInt(e.target.dataset.points);
-    const maxPoints = Number.isFinite(pts) ? pts : null;
-    trimChart(tickHistory, maxPoints);
-    trimChart(atmHistory, maxPoints);
-    updateCharts();
-  });
+   document.getElementById('connectBtn').addEventListener('click', connectUpstox);
+   document.getElementById('disconnectBtn').addEventListener('click', disconnectUpstox);
+   document.getElementById('clearLogsBtn').addEventListener('click', clearLogs);
+   document.getElementById('clearSignalsBtn').addEventListener('click', () => { signals.length = 0; renderSignals(); });
+   document.getElementById('chartZoomControls').addEventListener('click', (e) => {
+     if (!e.target.classList.contains('chart-zoom-btn')) return;
+     document.querySelectorAll('.chart-zoom-btn').forEach(b => {
+       b.style.color = ''; b.style.borderColor = ''; b.classList.remove('active');
+     });
+     e.target.style.color = 'var(--accent-blue)';
+     e.target.style.borderColor = 'var(--accent-blue)';
+     e.target.classList.add('active');
+     tickHistory.manualZoom = true;
+     atmHistory.manualZoom = true;
+     const pts = parseInt(e.target.dataset.points);
+     const maxPoints = Number.isFinite(pts) ? pts : null;
+     trimChart(tickHistory, maxPoints);
+     trimChart(atmHistory, maxPoints);
+     updateCharts();
+   });
 
-  setZoomFromWindow(tickHistory);
-  setZoomFromWindow(atmHistory);
-  window.addEventListener('resize', () => {
-    setZoomFromWindow(tickHistory);
-    setZoomFromWindow(atmHistory);
-    updateCharts();
-  });
-  loadInitialHistory();
-}
+   setZoomFromWindow(tickHistory);
+   setZoomFromWindow(atmHistory);
+   window.addEventListener('resize', () => {
+     setZoomFromWindow(tickHistory);
+     setZoomFromWindow(atmHistory);
+     updateCharts();
+   });
+   loadInitialHistory();
+ }
 
 function trimChart(history, maxPoints) {
   const len = history.labels.length;
@@ -62,16 +64,17 @@ function trimChart(history, maxPoints) {
 }
 
 function setZoomFromWindow(history) {
-  const maxWidth = window.innerWidth || 1400;
-  if (maxWidth <= 900) {
-    history.maxPoints = 3;
-  } else if (maxWidth <= 1100) {
-    history.maxPoints = 5;
-  } else {
-    history.maxPoints = 10;
-  }
-  trimChart(history, history.maxPoints);
-}
+   if (history.manualZoom) return;
+   const maxWidth = window.innerWidth || 1400;
+   if (maxWidth <= 900) {
+     history.maxPoints = 3;
+   } else if (maxWidth <= 1100) {
+     history.maxPoints = 5;
+   } else {
+     history.maxPoints = 10;
+   }
+   trimChart(history, history.maxPoints);
+ }
 
 async function loadInitialHistory() {
   try {

@@ -375,32 +375,3 @@ class TestRiskConstantsInvariant:
         assert MIN_OPEN_INTEREST == 50_000
         assert SLIPPAGE_BUFFER_PCT == 0.005
         assert EMERGENCY_FLATTEN_PCT == 0.05
-
-
-class TestStrategyPipelineLive:
-    """End-to-end strategy pipeline with simulated ticks."""
-
-    def test_full_pipeline_simulation(self) -> None:
-        """Full pipeline: buffer → strategy → signal generation."""
-        from fastapi.testclient import TestClient
-        from app import app
-
-        client = TestClient(app)
-
-        # Simulate a tick
-        resp = client.post("/api/simulate_tick", json={
-            "instrument_key": "NSE_INDEX|NIFTY 50",
-            "symbol": "NIFTY",
-            "last_price": 24500.0,
-            "volume": 1000,
-            "oi": 50000,
-        })
-        assert resp.status_code == 200
-
-        # Check signals
-        resp = client.get("/api/signals")
-        assert resp.status_code == 200
-
-        # Check ticks
-        resp = client.get("/api/ticks")
-        assert resp.status_code == 200

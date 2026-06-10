@@ -153,11 +153,11 @@ information without scrolling on a typical 1080p monitor.
 
 ## Delivery checklist
 
-- [ ] Tick for `NSE_INDEX|Nifty 50` carries `volume` sourced from future
-- [ ] VWAP shows non-zero after first future-claimed volume
-- [ ] `1m`/`3m`/`10m`/`All` zoom buttons only show what the dataset supports
-- [ ] Zero simulation IDs or onboarding in the UI
-- [ ] `/api/simulate_tick` and `/api/e2e_test` removed from `app.py`
+- [x] Tick for `NSE_INDEX|Nifty 50` carries `volume` sourced from future
+- [x] VWAP shows non-zero after first future-claimed volume
+- [x] `1m`/`3m`/`10m`/`All` zoom buttons only show what the dataset supports
+- [x] Zero simulation IDs or onboarding in the UI
+- [x] `/api/simulate_tick` and `/api/e2e_test` removed from `app.py`
 - [ ] ATM CE/PE live chart visible beside spot chart
 - [ ] CSS reduces whitespace as specified
 - [ ] No hard-coded secrets, no `print()`, no new global state violation
