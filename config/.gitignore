@@ -1,0 +1,60 @@
+# Secrets and tokens — never committed.
+.env
+.access_token.json
+
+# Python build artefacts.
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments.
+.venv/
+venv/
+ENV/
+env/
+
+# Test and coverage artefacts.
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+.mutmut-cache/
+
+# IDE and editor settings.
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Runtime data — see data/AGENTS.md for the durable contract.
+data/trade_journal.db
+data/trade_journal.db-wal
+data/trade_journal.db-shm
+data/journal_archive/
+data/tick_snapshots/
+data/instrument_cache/
+
+# Logs — see logs/AGENTS.md for the durable contract.
+logs/*.log
+logs/*.log.*
+logs/archive/

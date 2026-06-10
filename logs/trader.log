@@ -1,0 +1,293 @@
+{"ts": "2026-06-09T14:30:49.247417+05:30", "level": "INFO", "module": "root", "msg": "Logging configured", "epoch_ms": 1780995649247}
+{"ts": "2026-06-09T14:31:13.762576+05:30", "level": "INFO", "module": "root", "msg": "Logging configured", "epoch_ms": 1780995673762}
+{"ts": "2026-06-09T14:33:07.890018+05:30", "level": "INFO", "module": "root", "msg": "Logging configured", "epoch_ms": 1780995787890}
+{"ts": "2026-06-09T14:40:01.632795+05:30", "level": "INFO", "module": "root", "msg": "Logging configured", "epoch_ms": 1780996201632}
+{"ts": "2026-06-09T14:49:06.036791+05:30", "level": "INFO", "module": "root", "msg": "Logging configured", "epoch_ms": 1780996746036}
+{"ts": "2026-06-09T14:57:47.646177+05:30", "level": "INFO", "module": "root", "msg": "Logging configured", "epoch_ms": 1780997267646}
+{"ts": "2026-06-09T15:00:08.818294+05:30", "level": "INFO", "module": "root", "msg": "Logging configured", "epoch_ms": 1780997408818}
+{"ts": "2026-06-09T15:15:46.368984+05:30", "level": "INFO", "module": "root", "msg": "Logging configured", "epoch_ms": 1780998346368}
+{"ts": "2026-06-09T15:17:18.145008+05:30", "level": "INFO", "module": "root", "msg": "Logging configured", "epoch_ms": 1780998438145}
+{"ts": "2026-06-09T15:18:25.763834+05:30", "level": "INFO", "module": "root", "msg": "Logging configured", "epoch_ms": 1780998505763}
+{"ts": "2026-06-09T16:05:08.125494+05:30", "level": "INFO", "module": "root", "msg": "Logging configured", "epoch_ms": 1781001308125}
+{"ts": "2026-06-09T16:07:16.138422+05:30", "level": "INFO", "module": "root", "msg": "Logging configured", "epoch_ms": 1781001436138}
+{"ts": "2026-06-09T16:07:16.171867+05:30", "level": "INFO", "module": "httpx", "msg": "HTTP Request: GET http://testserver/api/status \"HTTP/1.1 200 OK\"", "epoch_ms": 1781001436171}
+{"ts": "2026-06-09T16:07:16.182597+05:30", "level": "INFO", "module": "httpx", "msg": "HTTP Request: GET http://testserver/api/signals \"HTTP/1.1 200 OK\"", "epoch_ms": 1781001436182}
+{"ts": "2026-06-09T16:07:16.187097+05:30", "level": "INFO", "module": "httpx", "msg": "HTTP Request: GET http://testserver/api/risk \"HTTP/1.1 200 OK\"", "epoch_ms": 1781001436187}
+{"ts": "2026-06-09T16:07:16.188271+05:30", "level": "INFO", "module": "httpx", "msg": "HTTP Request: GET http://testserver/api/ticks \"HTTP/1.1 200 OK\"", "epoch_ms": 1781001436188}
+{"ts": "2026-06-09T16:07:16.188271+05:30", "level": "INFO", "module": "httpx", "msg": "HTTP Request: GET http://testserver/api/positions \"HTTP/1.1 200 OK\"", "epoch_ms": 1781001436188}
+{"ts": "2026-06-09T16:07:16.188271+05:30", "level": "INFO", "module": "httpx", "msg": "HTTP Request: POST http://testserver/api/simulate_tick \"HTTP/1.1 200 OK\"", "epoch_ms": 1781001436188}
+{"ts": "2026-06-09T16:07:16.188271+05:30", "level": "INFO", "module": "app", "msg": "Access token set (length=14)", "epoch_ms": 1781001436188}
+{"ts": "2026-06-09T16:07:16.188271+05:30", "level": "INFO", "module": "httpx", "msg": "HTTP Request: POST http://testserver/api/token \"HTTP/1.1 200 OK\"", "epoch_ms": 1781001436188}
+{"ts": "2026-06-09T16:07:16.205166+05:30", "level": "INFO", "module": "httpx", "msg": "HTTP Request: POST http://testserver/api/token \"HTTP/1.1 400 Bad Request\"", "epoch_ms": 1781001436205}
+{"ts": "2026-06-09T16:07:16.205166+05:30", "level": "INFO", "module": "httpx", "msg": "HTTP Request: GET http://testserver/ \"HTTP/1.1 200 OK\"", "epoch_ms": 1781001436205}
+{"ts": "2026-06-09T16:07:16.205166+05:30", "level": "INFO", "module": "app", "msg": "Browser client connected (total=1)", "epoch_ms": 1781001436205}
+{"ts": "2026-06-09T16:07:16.205166+05:30", "level": "INFO", "module": "app", "msg": "Browser client disconnected (total=0)", "epoch_ms": 1781001436205}
+{"ts": "2026-06-09T16:07:16.205166+05:30", "level": "INFO", "module": "app", "msg": "Browser client connected (total=1)", "epoch_ms": 1781001436205}
+{"ts": "2026-06-09T16:07:16.221851+05:30", "level": "INFO", "module": "httpx", "msg": "HTTP Request: POST http://testserver/api/simulate_tick \"HTTP/1.1 200 OK\"", "epoch_ms": 1781001436221}
+{"ts": "2026-06-09T16:07:16.221851+05:30", "level": "INFO", "module": "app", "msg": "Browser client disconnected (total=0)", "epoch_ms": 1781001436221}
+{"ts": "2026-06-09T16:07:16.221851+05:30", "level": "INFO", "module": "httpx", "msg": "HTTP Request: GET http://testserver/api/status \"HTTP/1.1 200 OK\"", "epoch_ms": 1781001436221}
+{"ts": "2026-06-09T16:07:16.221851+05:30", "level": "INFO", "module": "httpx", "msg": "HTTP Request: GET http://testserver/api/signals \"HTTP/1.1 200 OK\"", "epoch_ms": 1781001436221}
+{"ts": "2026-06-09T16:07:16.237490+05:30", "level": "INFO", "module": "httpx", "msg": "HTTP Request: GET http://testserver/api/risk \"HTTP/1.1 200 OK\"", "epoch_ms": 1781001436237}
+{"ts": "2026-06-09T16:07:16.238809+05:30", "level": "INFO", "module": "httpx", "msg": "HTTP Request: GET http://testserver/api/ticks \"HTTP/1.1 200 OK\"", "epoch_ms": 1781001436238}
+{"ts": "2026-06-09T16:07:16.238809+05:30", "level": "INFO", "module": "httpx", "msg": "HTTP Request: GET http://testserver/api/positions \"HTTP/1.1 200 OK\"", "epoch_ms": 1781001436238}
+{"ts": "2026-06-09T16:07:16.238809+05:30", "level": "INFO", "module": "httpx", "msg": "HTTP Request: POST http://testserver/api/simulate_tick \"HTTP/1.1 200 OK\"", "epoch_ms": 1781001436238}
+{"ts": "2026-06-09T16:07:16.238809+05:30", "level": "INFO", "module": "httpx", "msg": "HTTP Request: GET http://testserver/ \"HTTP/1.1 200 OK\"", "epoch_ms": 1781001436238}
+{"ts": "2026-06-09T16:07:16.255900+05:30", "level": "INFO", "module": "app", "msg": "Browser client connected (total=1)", "epoch_ms": 1781001436255}
+{"ts": "2026-06-09T16:07:16.255900+05:30", "level": "INFO", "module": "app", "msg": "Browser client disconnected (total=0)", "epoch_ms": 1781001436255}
+{"ts": "2026-06-09T16:07:16.255900+05:30", "level": "INFO", "module": "httpx", "msg": "HTTP Request: POST http://testserver/api/e2e_test \"HTTP/1.1 200 OK\"", "epoch_ms": 1781001436255}
+{"ts": "2026-06-09T16:07:16.255900+05:30", "level": "INFO", "module": "httpx", "msg": "HTTP Request: POST http://testserver/api/disconnect \"HTTP/1.1 400 Bad Request\"", "epoch_ms": 1781001436255}
+{"ts": "2026-06-09T16:07:16.271874+05:30", "level": "INFO", "module": "httpx", "msg": "HTTP Request: POST http://testserver/api/connect \"HTTP/1.1 400 Bad Request\"", "epoch_ms": 1781001436271}
+{"ts": "2026-06-09T16:08:51.613475+05:30", "level": "INFO", "module": "root", "msg": "Logging configured", "epoch_ms": 1781001531613}
+{"ts": "2026-06-09T16:08:51.617491+05:30", "level": "INFO", "module": "app", "msg": "Trading system starting up...", "epoch_ms": 1781001531617}
+{"ts": "2026-06-09T16:09:14.537209+05:30", "level": "INFO", "module": "app", "msg": "Browser client connected (total=1)", "epoch_ms": 1781001554537}
+{"ts": "2026-06-09T16:11:28.514262+05:30", "level": "INFO", "module": "httpx", "msg": "HTTP Request: GET http://testserver/api/status \"HTTP/1.1 200 OK\"", "epoch_ms": 1781001688514}
+{"ts": "2026-06-09T16:11:28.514262+05:30", "level": "INFO", "module": "httpx", "msg": "HTTP Request: GET http://testserver/api/signals \"HTTP/1.1 200 OK\"", "epoch_ms": 1781001688514}
+{"ts": "2026-06-09T16:11:28.514262+05:30", "level": "INFO", "module": "httpx", "msg": "HTTP Request: GET http://testserver/api/risk \"HTTP/1.1 200 OK\"", "epoch_ms": 1781001688514}
+{"ts": "2026-06-09T16:11:28.514262+05:30", "level": "INFO", "module": "httpx", "msg": "HTTP Request: GET http://testserver/api/ticks \"HTTP/1.1 200 OK\"", "epoch_ms": 1781001688514}
+{"ts": "2026-06-09T16:11:28.532366+05:30", "level": "INFO", "module": "httpx", "msg": "HTTP Request: GET http://testserver/api/positions \"HTTP/1.1 200 OK\"", "epoch_ms": 1781001688532}
+{"ts": "2026-06-09T16:11:28.532366+05:30", "level": "INFO", "module": "httpx", "msg": "HTTP Request: POST http://testserver/api/simulate_tick \"HTTP/1.1 200 OK\"", "epoch_ms": 1781001688532}
+{"ts": "2026-06-09T16:11:28.532366+05:30", "level": "INFO", "module": "httpx", "msg": "HTTP Request: GET http://testserver/ \"HTTP/1.1 200 OK\"", "epoch_ms": 1781001688532}
+{"ts": "2026-06-09T16:11:28.532366+05:30", "level": "INFO", "module": "app", "msg": "Browser client connected (total=2)", "epoch_ms": 1781001688532}
+{"ts": "2026-06-09T16:11:28.548319+05:30", "level": "INFO", "module": "app", "msg": "Browser client disconnected (total=1)", "epoch_ms": 1781001688548}
+{"ts": "2026-06-09T16:17:35.263880+05:30", "level": "INFO", "module": "app", "msg": "Browser client disconnected (total=0)", "epoch_ms": 1781002055263}
+{"ts": "2026-06-09T16:46:34.102237+05:30", "level": "INFO", "module": "root", "msg": "Logging configured", "epoch_ms": 1781003794102}
+{"ts": "2026-06-09T16:46:34.106251+05:30", "level": "INFO", "module": "app", "msg": "Trading system starting up...", "epoch_ms": 1781003794106}
+{"ts": "2026-06-09T16:46:38.485847+05:30", "level": "INFO", "module": "app", "msg": "Browser client connected (total=1)", "epoch_ms": 1781003798485}
+{"ts": "2026-06-09T16:46:55.195779+05:30", "level": "INFO", "module": "app", "msg": "Access token set (length=337)", "epoch_ms": 1781003815195}
+{"ts": "2026-06-09T16:46:55.200033+05:30", "level": "INFO", "module": "app", "msg": "WebSocket connection initiated", "epoch_ms": 1781003815200}
+{"ts": "2026-06-09T16:46:55.200033+05:30", "level": "INFO", "module": "src.data.websocket_client", "msg": "Connecting to WebSocket (attempt 1)", "epoch_ms": 1781003815200}
+{"ts": "2026-06-09T16:46:55.249897+05:30", "level": "ERROR", "module": "app", "msg": "WebSocket connection failed", "epoch_ms": 1781003815249}
+{"ts": "2026-06-09T16:47:02.853284+05:30", "level": "INFO", "module": "httpx", "msg": "HTTP Request: GET http://testserver/api/status \"HTTP/1.1 200 OK\"", "epoch_ms": 1781003822853}
+{"ts": "2026-06-09T16:47:02.861731+05:30", "level": "INFO", "module": "httpx", "msg": "HTTP Request: GET http://testserver/api/signals \"HTTP/1.1 200 OK\"", "epoch_ms": 1781003822861}
+{"ts": "2026-06-09T16:47:02.875679+05:30", "level": "INFO", "module": "httpx", "msg": "HTTP Request: GET http://testserver/api/risk \"HTTP/1.1 200 OK\"", "epoch_ms": 1781003822875}
+{"ts": "2026-06-09T16:47:02.884904+05:30", "level": "INFO", "module": "httpx", "msg": "HTTP Request: GET http://testserver/api/ticks \"HTTP/1.1 200 OK\"", "epoch_ms": 1781003822884}
+{"ts": "2026-06-09T16:47:02.892437+05:30", "level": "INFO", "module": "httpx", "msg": "HTTP Request: GET http://testserver/api/positions \"HTTP/1.1 200 OK\"", "epoch_ms": 1781003822892}
+{"ts": "2026-06-09T16:47:02.900271+05:30", "level": "INFO", "module": "httpx", "msg": "HTTP Request: POST http://testserver/api/simulate_tick \"HTTP/1.1 200 OK\"", "epoch_ms": 1781003822900}
+{"ts": "2026-06-09T16:47:03.007687+05:30", "level": "INFO", "module": "httpx", "msg": "HTTP Request: GET http://testserver/ \"HTTP/1.1 200 OK\"", "epoch_ms": 1781003823007}
+{"ts": "2026-06-09T16:47:03.015988+05:30", "level": "INFO", "module": "app", "msg": "Browser client connected (total=2)", "epoch_ms": 1781003823015}
+{"ts": "2026-06-09T16:47:03.020456+05:30", "level": "INFO", "module": "app", "msg": "Browser client disconnected (total=1)", "epoch_ms": 1781003823020}
+{"ts": "2026-06-09T16:47:05.805436+05:30", "level": "INFO", "module": "app", "msg": "Access token set (length=337)", "epoch_ms": 1781003825805}
+{"ts": "2026-06-09T16:50:29.328577+05:30", "level": "INFO", "module": "root", "msg": "Logging configured", "epoch_ms": 1781004029328}
+{"ts": "2026-06-09T16:50:29.328577+05:30", "level": "INFO", "module": "app", "msg": "Trading system starting up...", "epoch_ms": 1781004029328}
+{"ts": "2026-06-09T16:50:32.134424+05:30", "level": "INFO", "module": "app", "msg": "Browser client connected (total=1)", "epoch_ms": 1781004032134}
+{"ts": "2026-06-09T16:50:58.696342+05:30", "level": "INFO", "module": "app", "msg": "Access token set (length=337)", "epoch_ms": 1781004058696}
+{"ts": "2026-06-09T16:51:14.313601+05:30", "level": "INFO", "module": "app", "msg": "WebSocket connection initiated", "epoch_ms": 1781004074313}
+{"ts": "2026-06-09T16:51:14.313601+05:30", "level": "INFO", "module": "src.data.websocket_client", "msg": "Connecting to WebSocket (attempt 1)", "epoch_ms": 1781004074313}
+{"ts": "2026-06-09T16:51:14.965017+05:30", "level": "ERROR", "module": "app", "msg": "WebSocket connection failed", "epoch_ms": 1781004074965}
+{"ts": "2026-06-09T17:19:04.547991+05:30", "level": "INFO", "module": "root", "msg": "Logging configured", "epoch_ms": 1781005744547}
+{"ts": "2026-06-09T17:19:08.011316+05:30", "level": "INFO", "module": "__main__", "msg": "Loaded 20260505: 6763 spot rows, 217500 options rows, strikes=29", "epoch_ms": 1781005748011}
+{"ts": "2026-06-09T17:19:08.676507+05:30", "level": "INFO", "module": "src.backtest.engine", "msg": "Starting backtest: 6763 ticks, capital=200000", "epoch_ms": 1781005748676}
+{"ts": "2026-06-09T17:19:08.746489+05:30", "level": "INFO", "module": "src.backtest.engine", "msg": "Backtest complete: 0 trades, PnL=0.00, win_rate=0.0%", "epoch_ms": 1781005748746}
+{"ts": "2026-06-09T17:45:45.259130+05:30", "level": "INFO", "module": "root", "msg": "Logging configured", "epoch_ms": 1781007345259}
+{"ts": "2026-06-09T17:45:45.264126+05:30", "level": "INFO", "module": "app", "msg": "Trading system starting up...", "epoch_ms": 1781007345264}
+{"ts": "2026-06-09T17:45:47.134286+05:30", "level": "INFO", "module": "app", "msg": "Browser client connected (total=1)", "epoch_ms": 1781007347134}
+{"ts": "2026-06-09T17:46:44.490519+05:30", "level": "INFO", "module": "root", "msg": "Logging configured", "epoch_ms": 1781007404490}
+{"ts": "2026-06-09T17:46:44.497818+05:30", "level": "INFO", "module": "app", "msg": "Trading system starting up...", "epoch_ms": 1781007404497}
+{"ts": "2026-06-09T17:46:44.498821+05:30", "level": "INFO", "module": "app", "msg": "Trading system shutting down...", "epoch_ms": 1781007404498}
+{"ts": "2026-06-09T17:47:34.925504+05:30", "level": "INFO", "module": "app", "msg": "Browser client connected (total=2)", "epoch_ms": 1781007454925}
+{"ts": "2026-06-09T17:54:12.568597+05:30", "level": "INFO", "module": "app", "msg": "Browser client disconnected (total=1)", "epoch_ms": 1781007852568}
+{"ts": "2026-06-09T18:04:58.464046+05:30", "level": "INFO", "module": "root", "msg": "Logging configured", "epoch_ms": 1781008498464}
+{"ts": "2026-06-09T18:04:58.876474+05:30", "level": "INFO", "module": "app", "msg": "Trading system starting up...", "epoch_ms": 1781008498876}
+{"ts": "2026-06-09T18:05:05.887747+05:30", "level": "INFO", "module": "app", "msg": "Browser client connected (total=1)", "epoch_ms": 1781008505887}
+{"ts": "2026-06-09T18:05:37.238131+05:30", "level": "INFO", "module": "app", "msg": "Access token set (length=337)", "epoch_ms": 1781008537238}
+{"ts": "2026-06-09T18:05:37.246139+05:30", "level": "INFO", "module": "app", "msg": "WebSocket connection initiated", "epoch_ms": 1781008537246}
+{"ts": "2026-06-09T18:05:37.250136+05:30", "level": "INFO", "module": "src.data.websocket_client", "msg": "Connecting to WebSocket (attempt 1)", "epoch_ms": 1781008537250}
+{"ts": "2026-06-09T18:05:37.262132+05:30", "level": "ERROR", "module": "app", "msg": "WebSocket connection failed", "epoch_ms": 1781008537262}
+{"ts": "2026-06-09T18:05:41.649407+05:30", "level": "INFO", "module": "app", "msg": "Access token set (length=337)", "epoch_ms": 1781008541649}
+{"ts": "2026-06-09T18:05:41.653406+05:30", "level": "INFO", "module": "app", "msg": "WebSocket connection initiated", "epoch_ms": 1781008541653}
+{"ts": "2026-06-09T18:05:41.654405+05:30", "level": "INFO", "module": "src.data.websocket_client", "msg": "Connecting to WebSocket (attempt 1)", "epoch_ms": 1781008541654}
+{"ts": "2026-06-09T18:05:41.661403+05:30", "level": "ERROR", "module": "app", "msg": "WebSocket connection failed", "epoch_ms": 1781008541661}
+{"ts": "2026-06-09T18:06:00.225930+05:30", "level": "INFO", "module": "app", "msg": "Browser client disconnected (total=0)", "epoch_ms": 1781008560225}
+{"ts": "2026-06-09T18:06:00.588299+05:30", "level": "INFO", "module": "app", "msg": "Browser client connected (total=1)", "epoch_ms": 1781008560588}
+{"ts": "2026-06-09T18:06:28.216611+05:30", "level": "INFO", "module": "app", "msg": "WebSocket disconnected", "epoch_ms": 1781008588216}
+{"ts": "2026-06-09T18:06:29.348118+05:30", "level": "INFO", "module": "app", "msg": "Access token set (length=337)", "epoch_ms": 1781008589348}
+{"ts": "2026-06-09T18:06:29.352942+05:30", "level": "INFO", "module": "app", "msg": "WebSocket connection initiated", "epoch_ms": 1781008589352}
+{"ts": "2026-06-09T18:06:29.354977+05:30", "level": "INFO", "module": "src.data.websocket_client", "msg": "Connecting to WebSocket (attempt 1)", "epoch_ms": 1781008589354}
+{"ts": "2026-06-09T18:06:29.358525+05:30", "level": "ERROR", "module": "app", "msg": "WebSocket connection failed", "epoch_ms": 1781008589358}
+{"ts": "2026-06-09T18:06:39.510609+05:30", "level": "INFO", "module": "httpx", "msg": "HTTP Request: GET http://testserver/api/status \"HTTP/1.1 200 OK\"", "epoch_ms": 1781008599510}
+{"ts": "2026-06-09T18:06:39.518593+05:30", "level": "INFO", "module": "httpx", "msg": "HTTP Request: GET http://testserver/api/signals \"HTTP/1.1 200 OK\"", "epoch_ms": 1781008599518}
+{"ts": "2026-06-09T18:06:39.529891+05:30", "level": "INFO", "module": "httpx", "msg": "HTTP Request: GET http://testserver/api/risk \"HTTP/1.1 200 OK\"", "epoch_ms": 1781008599529}
+{"ts": "2026-06-09T18:06:39.545848+05:30", "level": "INFO", "module": "httpx", "msg": "HTTP Request: GET http://testserver/api/ticks \"HTTP/1.1 200 OK\"", "epoch_ms": 1781008599545}
+{"ts": "2026-06-09T18:06:39.591795+05:30", "level": "INFO", "module": "httpx", "msg": "HTTP Request: GET http://testserver/api/positions \"HTTP/1.1 200 OK\"", "epoch_ms": 1781008599591}
+{"ts": "2026-06-09T18:06:39.649943+05:30", "level": "INFO", "module": "httpx", "msg": "HTTP Request: POST http://testserver/api/simulate_tick \"HTTP/1.1 200 OK\"", "epoch_ms": 1781008599649}
+{"ts": "2026-06-09T18:06:39.660115+05:30", "level": "INFO", "module": "httpx", "msg": "HTTP Request: GET http://testserver/ \"HTTP/1.1 200 OK\"", "epoch_ms": 1781008599660}
+{"ts": "2026-06-09T18:06:39.674033+05:30", "level": "INFO", "module": "app", "msg": "Browser client connected (total=2)", "epoch_ms": 1781008599674}
+{"ts": "2026-06-09T18:06:39.764685+05:30", "level": "INFO", "module": "app", "msg": "Browser client disconnected (total=1)", "epoch_ms": 1781008599764}
+{"ts": "2026-06-09T19:54:57.159146+05:30", "level": "INFO", "module": "app", "msg": "Browser client disconnected (total=0)", "epoch_ms": 1781015097159}
+{"ts": "2026-06-09T20:45:46.830503+05:30", "level": "INFO", "module": "app", "msg": "Browser client connected (total=1)", "epoch_ms": 1781018146830}
+{"ts": "2026-06-09T20:45:51.015349+05:30", "level": "INFO", "module": "app", "msg": "Browser client disconnected (total=0)", "epoch_ms": 1781018151015}
+{"ts": "2026-06-09T20:45:51.370910+05:30", "level": "INFO", "module": "app", "msg": "Browser client connected (total=1)", "epoch_ms": 1781018151370}
+{"ts": "2026-06-10T08:26:46.805755+05:30", "level": "INFO", "module": "root", "msg": "Logging configured", "epoch_ms": 1781060206805}
+{"ts": "2026-06-10T08:26:46.891557+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/api/status \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060206891}
+{"ts": "2026-06-10T08:26:46.903473+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/api/risk \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060206903}
+{"ts": "2026-06-10T08:26:46.914715+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/api/signals \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060206914}
+{"ts": "2026-06-10T08:26:46.925533+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/api/ticks \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060206925}
+{"ts": "2026-06-10T08:26:46.934616+05:30", "level": "INFO", "module": "app", "msg": "Access token set (length=311)", "epoch_ms": 1781060206934}
+{"ts": "2026-06-10T08:26:46.937313+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: POST http://testserver/api/token \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060206937}
+{"ts": "2026-06-10T08:26:46.943596+05:30", "level": "INFO", "module": "app", "msg": "WebSocket connection initiated", "epoch_ms": 1781060206943}
+{"ts": "2026-06-10T08:26:46.944699+05:30", "level": "INFO", "module": "src.data.websocket_client", "msg": "Connecting to WebSocket (attempt 1)", "epoch_ms": 1781060206944}
+{"ts": "2026-06-10T08:26:47.079220+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: POST http://testserver/api/connect \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060207079}
+{"ts": "2026-06-10T08:26:47.093498+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/ \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060207093}
+{"ts": "2026-06-10T08:26:47.103313+05:30", "level": "INFO", "module": "app", "msg": "WebSocket disconnected", "epoch_ms": 1781060207103}
+{"ts": "2026-06-10T08:26:47.107276+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: POST http://testserver/api/disconnect \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060207107}
+{"ts": "2026-06-10T08:26:47.132225+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: POST http://testserver/api/connect \"HTTP/1.1 400 Bad Request\"", "epoch_ms": 1781060207132}
+{"ts": "2026-06-10T08:26:47.143354+05:30", "level": "INFO", "module": "app", "msg": "Browser client connected (total=1)", "epoch_ms": 1781060207143}
+{"ts": "2026-06-10T08:26:47.145083+05:30", "level": "INFO", "module": "app", "msg": "Browser client disconnected (total=0)", "epoch_ms": 1781060207145}
+{"ts": "2026-06-10T08:26:47.161004+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: POST http://testserver/api/simulate_tick \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060207161}
+{"ts": "2026-06-10T08:26:47.166567+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/api/signals \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060207166}
+{"ts": "2026-06-10T08:26:47.171924+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/api/ticks \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060207171}
+{"ts": "2026-06-10T08:28:15.252007+05:30", "level": "INFO", "module": "root", "msg": "Logging configured", "epoch_ms": 1781060295252}
+{"ts": "2026-06-10T08:28:15.614205+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/api/status \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060295614}
+{"ts": "2026-06-10T08:28:15.742633+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/api/risk \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060295742}
+{"ts": "2026-06-10T08:28:15.761974+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/api/signals \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060295761}
+{"ts": "2026-06-10T08:28:15.779042+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/api/ticks \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060295779}
+{"ts": "2026-06-10T08:28:15.789938+05:30", "level": "INFO", "module": "app", "msg": "Access token set (length=311)", "epoch_ms": 1781060295789}
+{"ts": "2026-06-10T08:28:15.791502+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: POST http://testserver/api/token \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060295791}
+{"ts": "2026-06-10T08:28:15.898890+05:30", "level": "INFO", "module": "app", "msg": "WebSocket connection initiated", "epoch_ms": 1781060295898}
+{"ts": "2026-06-10T08:28:15.900108+05:30", "level": "INFO", "module": "src.data.websocket_client", "msg": "Connecting to WebSocket (attempt 1)", "epoch_ms": 1781060295900}
+{"ts": "2026-06-10T08:28:15.910927+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: POST http://testserver/api/connect \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060295910}
+{"ts": "2026-06-10T08:28:15.932947+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/ \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060295932}
+{"ts": "2026-06-10T08:28:16.050857+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: POST http://testserver/api/disconnect \"HTTP/1.1 400 Bad Request\"", "epoch_ms": 1781060296050}
+{"ts": "2026-06-10T08:28:16.112827+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: POST http://testserver/api/connect \"HTTP/1.1 400 Bad Request\"", "epoch_ms": 1781060296112}
+{"ts": "2026-06-10T08:28:16.123604+05:30", "level": "INFO", "module": "app", "msg": "Browser client connected (total=1)", "epoch_ms": 1781060296123}
+{"ts": "2026-06-10T08:28:16.160259+05:30", "level": "INFO", "module": "app", "msg": "Browser client disconnected (total=0)", "epoch_ms": 1781060296160}
+{"ts": "2026-06-10T08:28:16.271496+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: POST http://testserver/api/simulate_tick \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060296271}
+{"ts": "2026-06-10T08:28:16.281835+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/api/signals \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060296281}
+{"ts": "2026-06-10T08:28:16.288777+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/api/ticks \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060296288}
+{"ts": "2026-06-10T08:28:45.988200+05:30", "level": "INFO", "module": "root", "msg": "Logging configured", "epoch_ms": 1781060325988}
+{"ts": "2026-06-10T08:28:46.323555+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/api/status \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060326323}
+{"ts": "2026-06-10T08:28:46.409599+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/api/risk \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060326409}
+{"ts": "2026-06-10T08:28:46.434649+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/api/signals \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060326434}
+{"ts": "2026-06-10T08:28:46.552108+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/api/ticks \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060326552}
+{"ts": "2026-06-10T08:28:46.571427+05:30", "level": "INFO", "module": "app", "msg": "Access token set (length=311)", "epoch_ms": 1781060326571}
+{"ts": "2026-06-10T08:28:46.574397+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: POST http://testserver/api/token \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060326574}
+{"ts": "2026-06-10T08:28:46.580449+05:30", "level": "INFO", "module": "app", "msg": "WebSocket connection initiated", "epoch_ms": 1781060326580}
+{"ts": "2026-06-10T08:28:46.581308+05:30", "level": "INFO", "module": "src.data.websocket_client", "msg": "Connecting to WebSocket (attempt 1)", "epoch_ms": 1781060326581}
+{"ts": "2026-06-10T08:28:46.586726+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: POST http://testserver/api/connect \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060326586}
+{"ts": "2026-06-10T08:28:46.708694+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/ \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060326708}
+{"ts": "2026-06-10T08:28:46.880938+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: POST http://testserver/api/disconnect \"HTTP/1.1 400 Bad Request\"", "epoch_ms": 1781060326880}
+{"ts": "2026-06-10T08:28:46.995732+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: POST http://testserver/api/connect \"HTTP/1.1 400 Bad Request\"", "epoch_ms": 1781060326995}
+{"ts": "2026-06-10T08:28:47.034590+05:30", "level": "INFO", "module": "app", "msg": "Browser client connected (total=1)", "epoch_ms": 1781060327034}
+{"ts": "2026-06-10T08:28:47.037993+05:30", "level": "INFO", "module": "app", "msg": "Browser client disconnected (total=0)", "epoch_ms": 1781060327037}
+{"ts": "2026-06-10T08:28:47.056895+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: POST http://testserver/api/simulate_tick \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060327056}
+{"ts": "2026-06-10T08:28:47.069176+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/api/signals \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060327069}
+{"ts": "2026-06-10T08:28:47.073079+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/api/ticks \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060327073}
+{"ts": "2026-06-10T08:29:04.181470+05:30", "level": "INFO", "module": "root", "msg": "Logging configured", "epoch_ms": 1781060344181}
+{"ts": "2026-06-10T08:29:04.342804+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/api/status \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060344342}
+{"ts": "2026-06-10T08:29:04.347764+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/api/signals \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060344347}
+{"ts": "2026-06-10T08:29:04.352145+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/api/risk \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060344352}
+{"ts": "2026-06-10T08:29:04.356432+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/api/ticks \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060344356}
+{"ts": "2026-06-10T08:29:04.455071+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/api/positions \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060344455}
+{"ts": "2026-06-10T08:29:04.471431+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: POST http://testserver/api/simulate_tick \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060344471}
+{"ts": "2026-06-10T08:29:04.481556+05:30", "level": "INFO", "module": "app", "msg": "Access token set (length=14)", "epoch_ms": 1781060344481}
+{"ts": "2026-06-10T08:29:04.484474+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: POST http://testserver/api/token \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060344484}
+{"ts": "2026-06-10T08:29:04.491291+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: POST http://testserver/api/token \"HTTP/1.1 400 Bad Request\"", "epoch_ms": 1781060344491}
+{"ts": "2026-06-10T08:29:04.497227+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/ \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060344497}
+{"ts": "2026-06-10T08:29:04.501898+05:30", "level": "INFO", "module": "app", "msg": "Browser client connected (total=1)", "epoch_ms": 1781060344501}
+{"ts": "2026-06-10T08:29:04.502986+05:30", "level": "INFO", "module": "app", "msg": "Browser client disconnected (total=0)", "epoch_ms": 1781060344502}
+{"ts": "2026-06-10T08:29:04.524255+05:30", "level": "INFO", "module": "app", "msg": "Browser client connected (total=1)", "epoch_ms": 1781060344524}
+{"ts": "2026-06-10T08:29:04.558407+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: POST http://testserver/api/simulate_tick \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060344558}
+{"ts": "2026-06-10T08:29:04.560412+05:30", "level": "INFO", "module": "app", "msg": "Browser client disconnected (total=0)", "epoch_ms": 1781060344560}
+{"ts": "2026-06-10T08:29:04.613696+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/api/status \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060344613}
+{"ts": "2026-06-10T08:29:04.622261+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/api/signals \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060344622}
+{"ts": "2026-06-10T08:29:04.629394+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/api/risk \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060344629}
+{"ts": "2026-06-10T08:29:04.634460+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/api/ticks \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060344634}
+{"ts": "2026-06-10T08:29:04.639208+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/api/positions \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060344639}
+{"ts": "2026-06-10T08:29:04.644322+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: POST http://testserver/api/simulate_tick \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060344644}
+{"ts": "2026-06-10T08:29:04.647331+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/ \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060344647}
+{"ts": "2026-06-10T08:29:04.649697+05:30", "level": "INFO", "module": "app", "msg": "Browser client connected (total=1)", "epoch_ms": 1781060344649}
+{"ts": "2026-06-10T08:29:04.650569+05:30", "level": "INFO", "module": "app", "msg": "Browser client disconnected (total=0)", "epoch_ms": 1781060344650}
+{"ts": "2026-06-10T08:29:04.652228+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: POST http://testserver/api/e2e_test \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060344652}
+{"ts": "2026-06-10T08:29:04.785106+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: POST http://testserver/api/disconnect \"HTTP/1.1 400 Bad Request\"", "epoch_ms": 1781060344785}
+{"ts": "2026-06-10T08:29:04.797851+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: POST http://testserver/api/connect \"HTTP/1.1 400 Bad Request\"", "epoch_ms": 1781060344797}
+{"ts": "2026-06-10T08:29:27.383273+05:30", "level": "INFO", "module": "root", "msg": "Logging configured", "epoch_ms": 1781060367383}
+{"ts": "2026-06-10T08:29:28.361981+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/api/status \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060368361}
+{"ts": "2026-06-10T08:29:28.550873+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/api/risk \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060368550}
+{"ts": "2026-06-10T08:29:28.863456+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/api/signals \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060368863}
+{"ts": "2026-06-10T08:29:29.059140+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/api/ticks \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060369059}
+{"ts": "2026-06-10T08:29:29.166065+05:30", "level": "INFO", "module": "app", "msg": "Access token set (length=311)", "epoch_ms": 1781060369166}
+{"ts": "2026-06-10T08:29:29.171149+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: POST http://testserver/api/token \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060369171}
+{"ts": "2026-06-10T08:29:29.179643+05:30", "level": "INFO", "module": "app", "msg": "WebSocket connection initiated", "epoch_ms": 1781060369179}
+{"ts": "2026-06-10T08:29:29.181095+05:30", "level": "INFO", "module": "src.data.websocket_client", "msg": "Connecting to WebSocket (attempt 1)", "epoch_ms": 1781060369181}
+{"ts": "2026-06-10T08:29:29.196705+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: POST http://testserver/api/connect \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060369196}
+{"ts": "2026-06-10T08:29:29.211260+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/ \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060369211}
+{"ts": "2026-06-10T08:29:29.320866+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: POST http://testserver/api/disconnect \"HTTP/1.1 400 Bad Request\"", "epoch_ms": 1781060369320}
+{"ts": "2026-06-10T08:29:29.365177+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: POST http://testserver/api/connect \"HTTP/1.1 400 Bad Request\"", "epoch_ms": 1781060369365}
+{"ts": "2026-06-10T08:29:29.595271+05:30", "level": "INFO", "module": "app", "msg": "Browser client connected (total=1)", "epoch_ms": 1781060369595}
+{"ts": "2026-06-10T08:29:29.612002+05:30", "level": "INFO", "module": "app", "msg": "Browser client disconnected (total=0)", "epoch_ms": 1781060369612}
+{"ts": "2026-06-10T08:29:29.746082+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: POST http://testserver/api/simulate_tick \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060369746}
+{"ts": "2026-06-10T08:29:29.780635+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/api/signals \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060369780}
+{"ts": "2026-06-10T08:29:29.924801+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/api/ticks \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060369924}
+{"ts": "2026-06-10T08:29:30.230876+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/api/status \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060370230}
+{"ts": "2026-06-10T08:29:30.783151+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/api/signals \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060370783}
+{"ts": "2026-06-10T08:29:30.959591+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/api/risk \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060370959}
+{"ts": "2026-06-10T08:29:31.243593+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/api/ticks \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060371243}
+{"ts": "2026-06-10T08:29:31.263953+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/api/positions \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060371263}
+{"ts": "2026-06-10T08:29:31.379813+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: POST http://testserver/api/simulate_tick \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060371379}
+{"ts": "2026-06-10T08:29:31.398432+05:30", "level": "INFO", "module": "app", "msg": "Access token set (length=14)", "epoch_ms": 1781060371398}
+{"ts": "2026-06-10T08:29:31.401421+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: POST http://testserver/api/token \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060371401}
+{"ts": "2026-06-10T08:29:31.518909+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: POST http://testserver/api/token \"HTTP/1.1 400 Bad Request\"", "epoch_ms": 1781060371518}
+{"ts": "2026-06-10T08:29:31.540948+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/ \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060371540}
+{"ts": "2026-06-10T08:29:31.557363+05:30", "level": "INFO", "module": "app", "msg": "Browser client connected (total=1)", "epoch_ms": 1781060371557}
+{"ts": "2026-06-10T08:29:31.559254+05:30", "level": "INFO", "module": "app", "msg": "Browser client disconnected (total=0)", "epoch_ms": 1781060371559}
+{"ts": "2026-06-10T08:29:31.676792+05:30", "level": "INFO", "module": "app", "msg": "Browser client connected (total=1)", "epoch_ms": 1781060371676}
+{"ts": "2026-06-10T08:29:31.693744+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: POST http://testserver/api/simulate_tick \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060371693}
+{"ts": "2026-06-10T08:29:31.695747+05:30", "level": "INFO", "module": "app", "msg": "Browser client disconnected (total=0)", "epoch_ms": 1781060371695}
+{"ts": "2026-06-10T08:29:31.846729+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/api/status \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060371846}
+{"ts": "2026-06-10T08:29:31.857073+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/api/signals \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060371857}
+{"ts": "2026-06-10T08:29:31.879377+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/api/risk \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060371879}
+{"ts": "2026-06-10T08:29:31.988928+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/api/ticks \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060371988}
+{"ts": "2026-06-10T08:29:31.998541+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/api/positions \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060371998}
+{"ts": "2026-06-10T08:29:32.012511+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: POST http://testserver/api/simulate_tick \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060372012}
+{"ts": "2026-06-10T08:29:32.122215+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/ \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060372122}
+{"ts": "2026-06-10T08:29:32.139235+05:30", "level": "INFO", "module": "app", "msg": "Browser client connected (total=1)", "epoch_ms": 1781060372139}
+{"ts": "2026-06-10T08:29:32.141509+05:30", "level": "INFO", "module": "app", "msg": "Browser client disconnected (total=0)", "epoch_ms": 1781060372141}
+{"ts": "2026-06-10T08:29:32.148049+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: POST http://testserver/api/e2e_test \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060372148}
+{"ts": "2026-06-10T08:29:32.231272+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: POST http://testserver/api/disconnect \"HTTP/1.1 400 Bad Request\"", "epoch_ms": 1781060372231}
+{"ts": "2026-06-10T08:29:32.290904+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: POST http://testserver/api/connect \"HTTP/1.1 400 Bad Request\"", "epoch_ms": 1781060372290}
+{"ts": "2026-06-10T08:29:32.902936+05:30", "level": "INFO", "module": "root", "msg": "Logging configured", "epoch_ms": 1781060372902}
+{"ts": "2026-06-10T08:29:56.202138+05:30", "level": "INFO", "module": "root", "msg": "Logging configured", "epoch_ms": 1781060396202}
+{"ts": "2026-06-10T08:29:56.361318+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/api/status \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060396361}
+{"ts": "2026-06-10T08:29:56.374019+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/api/risk \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060396374}
+{"ts": "2026-06-10T08:29:56.386718+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/api/signals \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060396386}
+{"ts": "2026-06-10T08:29:56.399661+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/api/ticks \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060396399}
+{"ts": "2026-06-10T08:29:56.410320+05:30", "level": "INFO", "module": "app", "msg": "Access token set (length=311)", "epoch_ms": 1781060396410}
+{"ts": "2026-06-10T08:29:56.414031+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: POST http://testserver/api/token \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060396414}
+{"ts": "2026-06-10T08:29:56.418886+05:30", "level": "INFO", "module": "app", "msg": "WebSocket connection initiated", "epoch_ms": 1781060396418}
+{"ts": "2026-06-10T08:29:56.419765+05:30", "level": "INFO", "module": "src.data.websocket_client", "msg": "Connecting to WebSocket (attempt 1)", "epoch_ms": 1781060396419}
+{"ts": "2026-06-10T08:29:56.425081+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: POST http://testserver/api/connect \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060396425}
+{"ts": "2026-06-10T08:29:56.438229+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/ \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060396438}
+{"ts": "2026-06-10T08:29:56.446570+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: POST http://testserver/api/disconnect \"HTTP/1.1 400 Bad Request\"", "epoch_ms": 1781060396446}
+{"ts": "2026-06-10T08:29:56.457731+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: POST http://testserver/api/connect \"HTTP/1.1 400 Bad Request\"", "epoch_ms": 1781060396457}
+{"ts": "2026-06-10T08:29:56.472505+05:30", "level": "INFO", "module": "app", "msg": "Browser client connected (total=1)", "epoch_ms": 1781060396472}
+{"ts": "2026-06-10T08:29:56.475430+05:30", "level": "INFO", "module": "app", "msg": "Browser client disconnected (total=0)", "epoch_ms": 1781060396475}
+{"ts": "2026-06-10T08:29:56.497711+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: POST http://testserver/api/simulate_tick \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060396497}
+{"ts": "2026-06-10T08:29:56.504694+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/api/signals \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060396504}
+{"ts": "2026-06-10T08:29:56.511121+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/api/ticks \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060396511}
+{"ts": "2026-06-10T08:29:56.545882+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/api/status \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060396545}
+{"ts": "2026-06-10T08:29:56.557714+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/api/signals \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060396557}
+{"ts": "2026-06-10T08:29:56.570045+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/api/risk \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060396570}
+{"ts": "2026-06-10T08:29:56.582170+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/api/ticks \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060396582}
+{"ts": "2026-06-10T08:29:56.600285+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/api/positions \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060396600}
+{"ts": "2026-06-10T08:29:56.614282+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: POST http://testserver/api/simulate_tick \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060396614}
+{"ts": "2026-06-10T08:29:56.625585+05:30", "level": "INFO", "module": "app", "msg": "Access token set (length=14)", "epoch_ms": 1781060396625}
+{"ts": "2026-06-10T08:29:56.630839+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: POST http://testserver/api/token \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060396630}
+{"ts": "2026-06-10T08:29:56.643970+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: POST http://testserver/api/token \"HTTP/1.1 400 Bad Request\"", "epoch_ms": 1781060396643}
+{"ts": "2026-06-10T08:29:56.656153+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/ \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060396656}
+{"ts": "2026-06-10T08:29:56.668607+05:30", "level": "INFO", "module": "app", "msg": "Browser client connected (total=1)", "epoch_ms": 1781060396668}
+{"ts": "2026-06-10T08:29:56.671145+05:30", "level": "INFO", "module": "app", "msg": "Browser client disconnected (total=0)", "epoch_ms": 1781060396671}
+{"ts": "2026-06-10T08:29:56.682924+05:30", "level": "INFO", "module": "app", "msg": "Browser client connected (total=1)", "epoch_ms": 1781060396682}
+{"ts": "2026-06-10T08:29:56.691938+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: POST http://testserver/api/simulate_tick \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060396691}
+{"ts": "2026-06-10T08:29:56.694744+05:30", "level": "INFO", "module": "app", "msg": "Browser client disconnected (total=0)", "epoch_ms": 1781060396694}
+{"ts": "2026-06-10T08:29:56.716171+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/api/status \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060396716}
+{"ts": "2026-06-10T08:29:56.725120+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/api/signals \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060396725}
+{"ts": "2026-06-10T08:29:56.731378+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/api/risk \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060396731}
+{"ts": "2026-06-10T08:29:56.737387+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/api/ticks \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060396737}
+{"ts": "2026-06-10T08:29:56.743275+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/api/positions \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060396743}
+{"ts": "2026-06-10T08:29:56.751295+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: POST http://testserver/api/simulate_tick \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060396751}
+{"ts": "2026-06-10T08:29:56.759027+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: GET http://testserver/ \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060396759}
+{"ts": "2026-06-10T08:29:56.764548+05:30", "level": "INFO", "module": "app", "msg": "Browser client connected (total=1)", "epoch_ms": 1781060396764}
+{"ts": "2026-06-10T08:29:56.767149+05:30", "level": "INFO", "module": "app", "msg": "Browser client disconnected (total=0)", "epoch_ms": 1781060396767}
+{"ts": "2026-06-10T08:29:56.772395+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: POST http://testserver/api/e2e_test \"HTTP/1.1 200 OK\"", "epoch_ms": 1781060396772}
+{"ts": "2026-06-10T08:29:56.783066+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: POST http://testserver/api/disconnect \"HTTP/1.1 400 Bad Request\"", "epoch_ms": 1781060396783}
+{"ts": "2026-06-10T08:29:56.794833+05:30", "level": "INFO", "module": "httpx2", "msg": "HTTP Request: POST http://testserver/api/connect \"HTTP/1.1 400 Bad Request\"", "epoch_ms": 1781060396794}
