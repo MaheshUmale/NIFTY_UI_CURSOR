@@ -1,13 +1,16 @@
-const tickHistory = { labels: [], prices: [], volumes: [], maxPoints: 200 };
+const tickHistory = { labels: [], prices: [], volumes: [], maxPoints: 10 };
+const atmHistory = { labels: [], ce: [], pe: [], maxPoints: 10 };
 const signals = [];
 const MAX_SIGNALS = 50;
 const logLines = [];
 const MAX_LOG = 80;
 
-let chart;
+let priceChart;
+let volumeChart;
+let atmOptionsChart;
 
 document.addEventListener('DOMContentLoaded', () => {
-  initChart();
+  initCharts();
   bindControls();
   initWs();
   loadInitialStatus();
@@ -16,8 +19,6 @@ document.addEventListener('DOMContentLoaded', () => {
 function bindControls() {
   document.getElementById('connectBtn').addEventListener('click', connectUpstox);
   document.getElementById('disconnectBtn').addEventListener('click', disconnectUpstox);
-  document.getElementById('simTickBtn').addEventListener('click', simulateTick);
-  document.getElementById('simBurstBtn').addEventListener('click', simulateMultiple);
   document.getElementById('clearLogsBtn').addEventListener('click', clearLogs);
   document.getElementById('clearSignalsBtn').addEventListener('click', () => { signals.length = 0; renderSignals(); });
   document.getElementById('chartZoomControls').addEventListener('click', (e) => {
@@ -29,26 +30,86 @@ function bindControls() {
     e.target.style.borderColor = 'var(--accent-blue)';
     e.target.classList.add('active');
     const pts = parseInt(e.target.dataset.points);
-    tickHistory.maxPoints = pts === Infinity ? 999999 : pts;
-    if (tickHistory.labels.length > tickHistory.maxPoints) {
-      const trim = tickHistory.labels.length - tickHistory.maxPoints;
-      tickHistory.labels.splice(0, trim);
-      tickHistory.prices.splice(0, trim);
-      tickHistory.volumes.splice(0, trim);
-    }
-    updateChart();
+    const maxPoints = Number.isFinite(pts) ? pts : null;
+    trimChart(tickHistory, maxPoints);
+    trimChart(atmHistory, maxPoints);
+    updateCharts();
   });
+
+  setZoomFromWindow(tickHistory);
+  setZoomFromWindow(atmHistory);
+  window.addEventListener('resize', () => {
+    setZoomFromWindow(tickHistory);
+    setZoomFromWindow(atmHistory);
+    updateCharts();
+  });
+  loadInitialHistory();
 }
 
-function initChart() {
-  const ctx = document.getElementById('priceChart').getContext('2d');
-  const grad = ctx.createLinearGradient(0, 0, 0, 280);
-  grad.addColorStop(0, 'rgba(59,130,246,0.18)');
-  grad.addColorStop(1, 'rgba(59,130,246,0.0)');
-  chart = new Chart(ctx, {
+function trimChart(history, maxPoints) {
+  const len = history.labels.length;
+  if (!Number.isFinite(maxPoints) || maxPoints <= 0) {
+    return;
+  }
+  if (len > maxPoints) {
+    const trim = len - maxPoints;
+    history.labels.splice(0, trim);
+    history.prices.splice(0, trim);
+    history.volumes.splice(0, trim);
+    history.ce.splice(0, trim);
+    history.pe.splice(0, trim);
+  }
+}
+
+function setZoomFromWindow(history) {
+  const maxWidth = window.innerWidth || 1400;
+  if (maxWidth <= 900) {
+    history.maxPoints = 3;
+  } else if (maxWidth <= 1100) {
+    history.maxPoints = 5;
+  } else {
+    history.maxPoints = 10;
+  }
+  trimChart(history, history.maxPoints);
+}
+
+async function loadInitialHistory() {
+  try {
+    const r = await fetch('/api/history');
+    const data = await r.json();
+    const rows = Array.isArray(data?.ohlcv) ? data.ohlcv : [];
+    if (!rows.length) return;
+    const labels = [];
+    const prices = [];
+    const volumes = [];
+    for (const row of rows) {
+      const ts = row?.timestamp || '';
+      const price = row?.close ?? row?.last_price ?? row?.open ?? 0;
+      const vol = Number(row?.volume || 0);
+      if (!ts || !price) continue;
+      labels.push(ts);
+      prices.push(price);
+      volumes.push(vol);
+    }
+    tickHistory.labels = labels;
+    tickHistory.prices = prices;
+    tickHistory.volumes = volumes;
+    setZoomFromWindow(tickHistory);
+    updateCharts();
+  } catch (e) {
+    addLog('error', 'History load failed: ' + (e?.message || e));
+  }
+}
+
+function initCharts() {
+  const priceCtx = document.getElementById('priceChart').getContext('2d');
+  const priceGrad = priceCtx.createLinearGradient(0, 0, 0, 220);
+  priceGrad.addColorStop(0, 'rgba(59,130,246,0.18)');
+  priceGrad.addColorStop(1, 'rgba(59,130,246,0.0)');
+  priceChart = new Chart(priceCtx, {
     type: 'line',
     data: { labels: [], datasets: [{
-      label: 'Price', data: [], borderColor: '#3b82f6', backgroundColor: grad,
+      label: 'Price', data: [], borderColor: '#3b82f6', backgroundColor: priceGrad,
       borderWidth: 2, fill: true, tension: 0.25, pointRadius: 0, pointHitRadius: 8,
     }] },
     options: {
@@ -77,7 +138,9 @@ function initChart() {
       },
     },
   });
-  new Chart(document.getElementById('volumeChart').getContext('2d'), {
+
+  const volumeCtx = document.getElementById('volumeChart').getContext('2d');
+  volumeChart = new Chart(volumeCtx, {
     type: 'bar',
     data: { labels: [], datasets: [{
       label: 'Volume', data: [], backgroundColor: 'rgba(139,92,246,.45)', borderColor: 'rgba(139,92,246,.7)', borderWidth: 1,
@@ -99,6 +162,53 @@ function initChart() {
       },
     },
   });
+
+  const atmCtx = document.getElementById('atmOptionsChart').getContext('2d');
+  atmOptionsChart = new Chart(atmCtx, {
+    type: 'line',
+    data: { labels: [], datasets: [
+      { label: 'ATM CE', data: [], borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,.12)', borderWidth: 2, fill: true, tension: 0.25, pointRadius: 0, pointHitRadius: 8 },
+      { label: 'ATM PE', data: [], borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,.12)', borderWidth: 2, fill: true, tension: 0.25, pointRadius: 0, pointHitRadius: 8 },
+    ] },
+    options: {
+      responsive: true, maintainAspectRatio: false, animation: false,
+      interaction: { intersect: false, mode: 'index' },
+      plugins: {
+        legend: { display: true, labels: { color: '#9aa0b2', font: { size: 11, family: 'JetBrains Mono' } } },
+        tooltip: {
+          backgroundColor: '#1e2130', borderColor: '#2e3345', borderWidth: 1,
+          titleColor: '#9aa0b2', bodyColor: '#e8eaed',
+          bodyFont: { family: 'JetBrains Mono, monospace', size: 13 }, padding: 10,
+        },
+      },
+      scales: {
+        x: {
+          display: true,
+          ticks: { color: '#6b7280', font: { size: 10, family: 'JetBrains Mono' }, maxTicksLimit: 8, maxRotation: 0 },
+          grid: { color: 'rgba(46,51,69,.5)' },
+        },
+        y: {
+          display: true,
+          ticks: { color: '#6b7280', font: { size: 10, family: 'JetBrains Mono' }, callback: v => v.toFixed(0) },
+          grid: { color: 'rgba(46,51,69,.5)' },
+        },
+      },
+    },
+  });
+}
+
+function updateCharts() {
+  if (!priceChart || !volumeChart || !atmOptionsChart) return;
+  priceChart.data.labels = tickHistory.labels;
+  priceChart.data.datasets[0].data = tickHistory.prices;
+  volumeChart.data.labels = tickHistory.labels;
+  volumeChart.data.datasets[0].data = tickHistory.volumes;
+  atmOptionsChart.data.labels = atmHistory.labels;
+  atmOptionsChart.data.datasets[0].data = atmHistory.ce;
+  atmOptionsChart.data.datasets[1].data = atmHistory.pe;
+  priceChart.update('none');
+  volumeChart.update('none');
+  atmOptionsChart.update('none');
 }
 
 function initWs() {
@@ -158,40 +268,6 @@ async function disconnectUpstox() {
   }
 }
 
-async function simulateTick() {
-  const sym = document.getElementById('simSym').value || 'NSE_INDEX|NIFTY 50';
-  const price = parseFloat(document.getElementById('simPrice').value) || 24500 + Math.random() * 200;
-  const oi = parseInt(document.getElementById('simOI').value) || 50000 + Math.floor(Math.random() * 5000);
-  try {
-    const r = await fetch('/api/simulate_tick', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ instrument_key: sym, symbol: sym.split('|').pop(), last_price: price, volume: 1000 + Math.floor(Math.random() * 5000), oi }),
-    });
-    if (r.ok) addLog('info', `Simulated tick: ${sym.split('|').pop()} @ ${price.toFixed(2)}`);
-  } catch (e) {
-    addLog('error', 'Simulate error: ' + e.message);
-  }
-}
-
-async function simulateMultiple() {
-  const sym = 'NSE_INDEX|NIFTY 50';
-  addLog('info', 'Simulating 10 ticks...');
-  for (let i = 0; i < 10; i++) {
-    const price = 24500 + (Math.random() - 0.5) * 400;
-    const oi = 50000 + Math.floor(Math.random() * 10000);
-    try {
-      await fetch('/api/simulate_tick', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ instrument_key: sym, symbol: 'NIFTY', last_price: price, volume: 1000 + Math.floor(Math.random() * 5000), oi }),
-      });
-    } catch { /* ignore */ }
-    await new Promise(r => setTimeout(r, 100));
-  }
-  addLog('info', '10 ticks simulated');
-}
-
 function updateStatus(state) {
   const badge = document.getElementById('statusBadge');
   badge.className = 'status-badge';
@@ -245,36 +321,57 @@ function handleStatus(data) {
 }
 
 function handleTick(tick, ts) {
-  const sym = tick.symbol || tick.instrument_key || 'UNKNOWN';
-  const price = Number(tick.last_price);
-  if (!isFinite(price)) {
-    addLog('warn', `Bad tick skipped: missing last_price — ${JSON.stringify(tick).slice(0, 120)}`);
-    return;
+  const isNifty = tick.instrument_key === 'NSE_INDEX|Nifty 50';
+  const isOption = tick.instrument_key.includes('CE') || tick.instrument_key.includes('PE');
+
+  if (!isNifty && !isOption) return;
+
+  const price = tick.last_price;
+  if (!price) return;
+
+  if (isNifty) {
+    const sym = 'NIFTY 50';
+    const closePrice = tick.close_price;
+    const prev = closePrice || price;
+    const diff = price - prev;
+    const chgPct = prev ? ((diff / prev) * 100).toFixed(3) : '0.000';
+    const sign = diff > 0 ? '+' : '';
+    document.getElementById('lastSym').textContent = sym;
+    const priceEl = document.getElementById('lastPrice');
+    priceEl.textContent = price.toFixed(2);
+    priceEl.previousElementSibling && (priceEl.previousElementSibling.textContent = sym);
+    document.getElementById('priceChg').textContent = `${sign}${diff.toFixed(2)} (${sign}${chgPct}%)`;
+    document.getElementById('priceChg').className = 'price-change ' + (diff > 0 ? 'price-up' : diff < 0 ? 'price-down' : 'price-flat');
+    document.getElementById('lastOi').textContent = formatNum(tick.oi);
+    document.getElementById('lastVol').textContent = formatNum(tick.volume);
+    document.getElementById('lastTs').textContent = ts;
+    const tickEl = document.getElementById('statTicks');
+    tickEl.textContent = formatNum((parseInt(tickEl.textContent.replace(/,/g, '')) || 0) + 1);
+    tickHistory.labels.push(ts);
+    tickHistory.prices.push(price);
+    tickHistory.volumes.push(tick.volume || 0);
+    while (tickHistory.labels.length > tickHistory.maxPoints) {
+      tickHistory.labels.shift();
+      tickHistory.prices.shift();
+      tickHistory.volumes.shift();
+    }
   }
-  const prev = tickHistory.prices.length ? tickHistory.prices[tickHistory.prices.length - 1] : price;
-  const diff = price - prev;
-  const chgPct = prev ? ((diff / prev) * 100).toFixed(3) : '0.000';
-  const sign = diff > 0 ? '+' : '';
-  document.getElementById('lastSym').textContent = sym;
-  const priceEl = document.getElementById('lastPrice');
-  priceEl.textContent = price.toFixed(2);
-  priceEl.previousElementSibling && (priceEl.previousElementSibling.textContent = sym);
-  document.getElementById('priceChg').textContent = `${sign}${diff.toFixed(2)} (${sign}${chgPct}%)`;
-  document.getElementById('priceChg').className = 'price-change ' + (diff > 0 ? 'price-up' : diff < 0 ? 'price-down' : 'price-flat');
-  document.getElementById('lastOi').textContent = formatNum(tick.oi);
-  document.getElementById('lastVol').textContent = formatNum(tick.volume);
-  document.getElementById('lastTs').textContent = ts;
-  const tickEl = document.getElementById('statTicks');
-  tickEl.textContent = formatNum((parseInt(tickEl.textContent.replace(/,/g, '')) || 0) + 1);
-  tickHistory.labels.push(ts);
-  tickHistory.prices.push(price);
-  tickHistory.volumes.push(tick.volume || 0);
-  while (tickHistory.labels.length > tickHistory.maxPoints) {
-    tickHistory.labels.shift();
-    tickHistory.prices.shift();
-    tickHistory.volumes.shift();
+
+  if (isOption) {
+    const side = tick.instrument_key.includes('CE') ? 'ce' : 'pe';
+    atmHistory.labels.push(ts);
+    atmHistory.ce.push(side === 'ce' ? price : (atmHistory.ce[atmHistory.ce.length - 1] || 0));
+    atmHistory.pe.push(side === 'pe' ? price : (atmHistory.pe[atmHistory.pe.length - 1] || 0));
+    while (atmHistory.labels.length > atmHistory.maxPoints) {
+      atmHistory.labels.shift();
+      atmHistory.ce.shift();
+      atmHistory.pe.shift();
+    }
+    document.getElementById('atmBadge').textContent = tick.instrument_key.split('|').pop();
+    document.getElementById('atmBadge').className = 'badge badge-neutral';
   }
-  updateChart();
+
+  updateCharts();
 }
 
 function handleSignal(data, ts) {
@@ -291,7 +388,7 @@ function handleSignal(data, ts) {
 function renderSignals() {
   const list = document.getElementById('signalList');
   if (!signals.length) {
-    list.innerHTML = `<div class="empty-state"><span class="big-icon">📡</span>No signals — simulate a tick or connect live data</div>`;
+    list.innerHTML = `<div class="empty-state"><span class="big-icon">📡</span>No signals — connect live data</div>`;
     return;
   }
   list.innerHTML = signals.map(s => {
@@ -316,14 +413,6 @@ function renderSignals() {
       </div>
     </div>`;
   }).join('');
-}
-
-function updateChart() {
-  if (!chart) return;
-  chart.data.labels = tickHistory.labels;
-  chart.data.datasets[0].data = tickHistory.prices;
-  chart.data.datasets[1] && (chart.data.datasets[1].data = tickHistory.volumes);
-  chart.update('none');
 }
 
 function addLog(level, msg) {

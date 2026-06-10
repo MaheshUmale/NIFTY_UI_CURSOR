@@ -65,6 +65,8 @@ class VWAPEngine:
             state.vwap = 0.0
             state.last_reset_time = current_date
 
+        if volume is None or price is None:
+            return state.vwap
         if volume > 0 and price > 0:
             state.cumulative_pv += price * volume
             state.cumulative_volume += volume

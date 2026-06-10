@@ -1,8 +1,9 @@
 """Async WebSocket V3 client for Upstox market data using official SDK.
 
-Uses ``upstox_client.MarketDataStreamerV3`` with access_token-in-Configuration
-(authorization header), subscribes in ``on_open``, and normalizes the nested
-``feeds[x].fullFeed.marketFF`` JSON into our internal tick dict.
+Uses ``upstox_client.MarketDataStreamerV3`` with access_token in Configuration,
+instantiates streamer with positional args (api_client, instrument_keys, mode),
+and normalizes the nested V3 feed JSON (``feeds[x].fullFeed.indexFF|marketFF.ltpc``)
+into our internal tick dict.
 
 Source: https://upstox.com/developer/api-documentation/streamer-function
 """

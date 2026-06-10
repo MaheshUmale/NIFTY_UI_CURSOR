@@ -102,6 +102,12 @@ class MarketBuffer:
             return True
         return False
 
+    def latest_for(self, instrument_key: str) -> dict[str, Any] | None:
+        for tick in reversed(self._ticks):
+            if tick.get("instrument_key") == instrument_key:
+                return tick
+        return None
+
     def clear(self) -> None:
         """Reset the buffer and OI cache."""
         self._ticks.clear()

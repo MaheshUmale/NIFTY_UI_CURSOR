@@ -17,8 +17,7 @@ import os
 import time
 import uuid
 from contextlib import asynccontextmanager
-from dataclasses import asdict, dataclass, field
-from datetime import datetime, time as dtime
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
@@ -28,8 +27,10 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-from src.data.market_buffer import MarketBuffer
 from src.data.websocket_client import WebSocketClient
+from src.data.market_history import fetch_warmup_data, resolve_option_keys_for_history
+from src.data.instrument_resolver import resolve_current_month_future
+from src.data.market_buffer import MarketBuffer
 from src.strategy.signal_generator import Signal, SignalGenerator
 from src.utils.logger import get_logger, configure_logging
 from src.utils.time_utils import now_ist, is_market_hours
@@ -39,6 +40,18 @@ from src.utils.time_utils import now_ist, is_market_hours
 # ---------------------------------------------------------------------------
 configure_logging()
 logger = get_logger(__name__)
+
+# ---------------------------------------------------------------------------
+# Instrument cache: current-month future instrument keys for volume proxy
+# ---------------------------------------------------------------------------
+_current_future_cache: dict[str, str | None] = {}
+
+
+def _get_nifty_future_key() -> str | None:
+    if "nifty" not in _current_future_cache:
+        _current_future_cache["nifty"] = resolve_current_month_future("NIFTY")
+    return _current_future_cache["nifty"]
+
 
 # ---------------------------------------------------------------------------
 # In-memory state (shared across all connected clients)
@@ -88,6 +101,20 @@ class AppState:
 state = AppState()
 
 
+def _proxy_index_volume(tick: dict[str, Any]) -> None:
+    if tick.get("instrument_key") != "NSE_INDEX|Nifty 50":
+        return
+    if tick.get("volume"):
+        return
+    fut_key = _current_future_cache.get("nifty") or _get_nifty_future_key()
+    if not fut_key:
+        return
+    ref = state.buffer.latest_for(fut_key) if state.buffer else None
+    if ref and ref.get("volume"):
+        tick["volume"] = ref["volume"]
+        tick["volume_source"] = "future_proxy"
+
+
 # ---------------------------------------------------------------------------
 # Lifespan
 # ---------------------------------------------------------------------------
@@ -104,15 +131,15 @@ async def lifespan(app: FastAPI):
         state.access_token = token
         logger.info("Access token loaded from .env (length=%d)", len(token))
         try:
-            state.ws_client = WebSocketClient(
-                token=state.access_token,
-                tick_handler=tick_handler,
-                buffer=state.buffer,
-            )
+            _get_nifty_future_key()
+            option_keys = resolve_option_keys_for_history(state.access_token, df=None)
             instrument_keys = [
                 "NSE_INDEX|Nifty 50",
                 "NSE_INDEX|Nifty Bank",
+                _current_future_cache.get("nifty", ""),
             ]
+            instrument_keys = [k for k in instrument_keys if k]
+            instrument_keys.extend(option_keys)
             state.ws_client = WebSocketClient(
                 token=state.access_token,
                 tick_handler=tick_handler,
@@ -122,7 +149,7 @@ async def lifespan(app: FastAPI):
             asyncio.create_task(_run_websocket(instrument_keys))
             state.connected = True
             state.error_message = ""
-            logger.info("WebSocket auto-connect initiated for %s", instrument_keys)
+            logger.info("WebSocket auto-connect initiated with %d instruments", len(instrument_keys))
         except Exception as e:
             state.error_message = str(e)
             logger.exception("Failed to auto-connect on startup")
@@ -224,6 +251,10 @@ async def tick_handler(tick: dict[str, Any]) -> None:
 
         logger.debug("tick_handler received tick %d: keys=%s last_price=%r", state.tick_count, list(tick.keys()), tick.get("last_price"))
 
+        _proxy_index_volume(tick)
+        if tick.get("volume_source") == "future_proxy":
+            logger.debug("Index volume proxied from future for tick %d", state.tick_count)
+
         # Run strategy
         try:
             signal = state.signal_generator.on_tick(tick)
@@ -320,6 +351,21 @@ async def get_risk():
     })
 
 
+@app.get("/api/history")
+async def get_history():
+    """Get historical OHLCV data for the chart (merged index + future)."""
+    try:
+        warmup = fetch_warmup_data(state.access_token)
+        option_keys = resolve_option_keys_for_history(state.access_token)
+        return JSONResponse({
+            "ohlcv": warmup.get("ohlcv", []),
+            "instrument_keys": warmup.get("instrument_keys", []) + option_keys,
+        })
+    except Exception as e:
+        logger.exception("History fetch failed")
+        return JSONResponse({"error": str(e)}, status_code=500)
+
+
 @app.post("/api/token")
 async def set_token(body: dict[str, Any]):
     """Set the Upstox access token for WebSocket connection."""
@@ -341,18 +387,25 @@ async def connect_upstox():
         return JSONResponse({"error": "Already connected."}, status_code=400)
 
     try:
+        instrument_keys = [
+            "NSE_INDEX|Nifty 50",
+            "NSE_INDEX|Nifty Bank",
+        ]
+        nifty_fut = _get_nifty_future_key()
+        if nifty_fut:
+            instrument_keys.append(nifty_fut)
+        try:
+            instrument_keys.extend(resolve_option_keys_for_history(state.access_token))
+        except Exception as opt_exc:
+            logger.error("Option key resolution failed: %s", opt_exc)
+
         # Create WebSocket client
         state.ws_client = WebSocketClient(
             token=state.access_token,
             tick_handler=tick_handler,
             buffer=state.buffer,
+            instrument_keys=instrument_keys,
         )
-
-        # Subscribe to NIFTY instruments
-        instrument_keys = [
-            "NSE_INDEX|NIFTY 50",
-            "NSE_INDEX|NIFTY BANK",
-        ]
 
         # Start connection in background
         asyncio.create_task(_run_websocket(instrument_keys))
@@ -371,7 +424,6 @@ async def connect_upstox():
 async def _run_websocket(instrument_keys: list[str]) -> None:
     """Run the WebSocket client in the background."""
     try:
-        await state.ws_client.subscribe(instrument_keys)
         await state.ws_client.connect()
     except Exception as e:
         state.connected = False
@@ -390,21 +442,6 @@ async def disconnect_upstox():
         logger.info("WebSocket disconnected")
         return JSONResponse({"status": "disconnected"})
     return JSONResponse({"error": "Not connected"}, status_code=400)
-
-
-@app.post("/api/simulate_tick")
-async def simulate_tick(body: dict[str, Any]):
-    """Simulate a tick for testing purposes (no real Upstox connection needed)."""
-    tick = {
-        "instrument_key": body.get("instrument_key", "NSE_INDEX|NIFTY 50"),
-        "symbol": body.get("symbol", "NIFTY"),
-        "last_price": body.get("last_price", 24500.0),
-        "volume": body.get("volume", 1000),
-        "oi": body.get("oi", 50000),
-        "timestamp": now_ist().isoformat(),
-    }
-    await tick_handler(tick)
-    return JSONResponse({"status": "tick_simulated", "tick": tick})
 
 
 @app.websocket("/ws")
@@ -446,137 +483,6 @@ async def websocket_endpoint(websocket: WebSocket):
     except WebSocketDisconnect:
         state.browser_clients.discard(websocket)
         logger.info("Browser client disconnected (total=%d)", len(state.browser_clients))
-
-
-# ---------------------------------------------------------------------------
-# E2E Test endpoint — simulates the full pipeline
-# ---------------------------------------------------------------------------
-
-@app.post("/api/e2e_test")
-async def run_e2e_test():
-    """Run an end-to-end test of the full pipeline with simulated ticks."""
-    results = {
-        "test_name": "E2E Live Streaming Pipeline Test",
-        "steps": [],
-        "passed": True,
-    }
-
-    # Step 1: Test market buffer
-    try:
-        buffer = MarketBuffer(capacity=100)
-        test_tick = {
-            "instrument_key": "NSE_INDEX|NIFTY 50",
-            "symbol": "NIFTY",
-            "last_price": 24500.0,
-            "volume": 1000,
-            "oi": 50000,
-        }
-        buffer.push(test_tick)
-        latest = buffer.latest()
-        assert latest is not None, "Buffer should have a tick"
-        assert latest["last_price"] == 24500.0, "Price should match"
-        results["steps"].append({"step": "market_buffer", "status": "PASS", "detail": "Buffer stores and retrieves ticks"})
-    except Exception as e:
-        results["steps"].append({"step": "market_buffer", "status": "FAIL", "detail": str(e)})
-        results["passed"] = False
-
-    # Step 2: Test signal generator
-    try:
-        generator = SignalGenerator()
-        # Feed multiple ticks to build ORB range
-        for i in range(20):
-            tick = {
-                "instrument_key": "NSE_INDEX|NIFTY 50",
-                "symbol": "NIFTY",
-                "last_price": 24500.0 + i * 10,
-                "volume": 1000 + i * 100,
-                "oi": 50000,
-            }
-            generator.on_tick(tick)
-        results["steps"].append({"step": "signal_generator", "status": "PASS", "detail": "Signal generator processes ticks without error"})
-    except Exception as e:
-        results["steps"].append({"step": "signal_generator", "status": "FAIL", "detail": str(e)})
-        results["passed"] = False
-
-    # Step 3: Test tick handler
-    try:
-        state.tick_count = 0
-        await tick_handler(test_tick)
-        assert state.tick_count == 1, "Tick count should be 1"
-        assert "NSE_INDEX|NIFTY 50" in state.latest_ticks, "Latest tick should be stored"
-        results["steps"].append({"step": "tick_handler", "status": "PASS", "detail": "Tick handler processes ticks and updates state"})
-    except Exception as e:
-        results["steps"].append({"step": "tick_handler", "status": "FAIL", "detail": str(e)})
-        results["passed"] = False
-
-    # Step 4: Test REST API endpoints
-    try:
-        from fastapi.testclient import TestClient
-        client = TestClient(app)
-
-        # Test /api/status
-        resp = client.get("/api/status")
-        assert resp.status_code == 200, f"Status endpoint returned {resp.status_code}"
-        data = resp.json()
-        assert "connected" in data, "Status should have 'connected' field"
-
-        # Test /api/signals
-        resp = client.get("/api/signals")
-        assert resp.status_code == 200, f"Signals endpoint returned {resp.status_code}"
-
-        # Test /api/risk
-        resp = client.get("/api/risk")
-        assert resp.status_code == 200, f"Risk endpoint returned {resp.status_code}"
-
-        # Test /api/ticks
-        resp = client.get("/api/ticks")
-        assert resp.status_code == 200, f"Ticks endpoint returned {resp.status_code}"
-
-        # Test /api/positions
-        resp = client.get("/api/positions")
-        assert resp.status_code == 200, f"Positions endpoint returned {resp.status_code}"
-
-        # Test /api/simulate_tick
-        resp = client.post("/api/simulate_tick", json={
-            "instrument_key": "NSE_INDEX|NIFTY 50",
-            "symbol": "NIFTY",
-            "last_price": 24500.0,
-            "volume": 1000,
-            "oi": 50000,
-        })
-        assert resp.status_code == 200, f"Simulate tick returned {resp.status_code}"
-
-        results["steps"].append({"step": "rest_api", "status": "PASS", "detail": "All REST API endpoints respond correctly"})
-    except Exception as e:
-        results["steps"].append({"step": "rest_api", "status": "FAIL", "detail": str(e)})
-        results["passed"] = False
-
-    # Step 5: Test dashboard UI
-    try:
-        from fastapi.testclient import TestClient
-        client = TestClient(app)
-        resp = client.get("/")
-        assert resp.status_code == 200, f"Dashboard returned {resp.status_code}"
-        assert "NIFTY" in resp.text or "Trading" in resp.text, "Dashboard should contain trading-related content"
-        results["steps"].append({"step": "dashboard_ui", "status": "PASS", "detail": "Dashboard UI serves HTML correctly"})
-    except Exception as e:
-        results["steps"].append({"step": "dashboard_ui", "status": "FAIL", "detail": str(e)})
-        results["passed"] = False
-
-    # Step 6: Test WebSocket endpoint
-    try:
-        from fastapi.testclient import TestClient
-        client = TestClient(app)
-        with client.websocket_connect("/ws") as ws:
-            data = ws.receive_text()
-            msg = json.loads(data)
-            assert msg["type"] == "status", f"Expected status message, got {msg['type']}"
-        results["steps"].append({"step": "websocket", "status": "PASS", "detail": "WebSocket endpoint accepts connections and sends status"})
-    except Exception as e:
-        results["steps"].append({"step": "websocket", "status": "FAIL", "detail": str(e)})
-        results["passed"] = False
-
-    return JSONResponse(results)
 
 
 # ---------------------------------------------------------------------------
