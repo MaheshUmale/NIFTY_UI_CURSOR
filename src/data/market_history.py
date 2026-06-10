@@ -4,7 +4,7 @@ Fetches 1-minute OHLCV from Upstox V3 History APIs:
 - Intraday: current day candles for NIFTY index + NIFTY future
 - Historical: previous day candles for context
 - Merge: use INDEX price fields, FUTURE volume (indices have no volume)
-- Options: ATM ± 3 strike chain snapshot for OI/PCR warm-up
+- Options: ATM ± window strike chain snapshot for OI/PCR warm-up
 
 Instruments:
 - NIFTY 50 : ``NSE_INDEX|Nifty 50``
@@ -220,7 +220,7 @@ def _resolve_nifty_future_key(token: str) -> str | None:
 
 
 def _resolve_option_keys(token: str) -> list[str]:
-    """Resolve ATM ± 3 option keys for NIFTY (same as ExtractInstrumentKeys)."""
+    """Resolve ATM ± window option keys for NIFTY."""
     try:
         import gzip
         import io
@@ -271,8 +271,45 @@ def _resolve_option_keys(token: str) -> list[str]:
                 keys.append(str(pe.iloc[0]["instrument_key"]))
         return keys
     except Exception as exc:
-logger.error("Option key resolution failed: %s", exc)
+        logger.error("Option key resolution failed: %s", exc)
         return []
+
+
+def _resolve_index_spot_for_atm(token: str, instrument_master: Any) -> float | None:
+    try:
+        import upstox_client
+
+        configuration = upstox_client.Configuration()
+        configuration.access_token = token
+        quote_api = upstox_client.MarketQuoteV3Api(upstox_client.ApiClient(configuration))
+        ltp_resp = quote_api.get_ltp(instrument_key=INDEX_KEY)
+        spot = getattr(getattr(ltp_resp, "data", None), "get", lambda k, d=None: d)(INDEX_KEY)
+        if hasattr(spot, "last_price"):
+            spot = spot.last_price
+        if spot is not None:
+            return float(spot)
+    except Exception as exc:
+        logger.warning("LTP spot fetch failed: %s", exc)
+
+    try:
+        fut_key = _resolve_nifty_future_key(token)
+        if fut_key and instrument_master is not None:
+            fut_row = instrument_master[instrument_master["instrument_key"] == fut_key]
+            if not fut_row.empty:
+                return float(fut_row.iloc[0].get("last_price", fut_row.iloc[0].get("ltp", 0)) or 0) or None
+    except Exception as exc:
+        logger.warning("Fallback spot resolution failed: %s", exc)
+
+    return None
+
+
+def _num(val: Any) -> float | None:
+    if val is None:
+        return None
+    try:
+        return float(val)
+    except (TypeError, ValueError):
+        return None
 
 
 # ---------------------------------------------------------------------------
@@ -283,10 +320,10 @@ def _get_nearest_expiry_date(token: str, symbol: str = "NIFTY") -> str | None:
     """Get the nearest expiry date from instrument master, cached by date."""
     today_str = datetime.now().strftime("%Y-%m-%d")
     cache_key = f"{symbol}_{today_str}"
-    
+
     if cache_key in _nearest_expiry_cache:
         return _nearest_expiry_cache[cache_key]
-    
+
     try:
         import gzip
         import io
@@ -321,7 +358,7 @@ def is_expiry_passed(symbol: str = "NIFTY") -> bool:
     today_str = datetime.now().strftime("%Y-%m-%d")
     cache_key = f"{symbol}_{today_str}"
     cached_expiry = _nearest_expiry_cache.get(cache_key)
-    
+
     if cached_expiry:
         return datetime.now().strftime("%Y-%m-%d") > cached_expiry
     return False
@@ -330,10 +367,10 @@ def is_expiry_passed(symbol: str = "NIFTY") -> bool:
 def resolve_option_keys_for_history(token: str) -> list[str]:
     """Resolve ATM ± window option keys for NIFTY with expiry awareness."""
     keys = _resolve_option_keys(token)
-    
+
     if keys and is_expiry_passed():
         logger.info("Expiry passed, triggering roll-over to next expiry")
         _nearest_expiry_cache.clear()
         keys = _resolve_option_keys(token)
-    
+
     return keys

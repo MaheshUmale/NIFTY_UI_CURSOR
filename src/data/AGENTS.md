@@ -16,7 +16,7 @@ Market data ingestion: Upstox daily instrument CSV loader, async WebSocket V3 cl
 - **Strict zero-computation:** The ingestion module must execute ZERO math, ZERO averaging, ZERO indicator generation. Its sole responsibility is serialization, network transport, and ring-buffer writes.
 - **Source of truth:** `ALL_DOCS/UPSTOX-api-docs.json` and `ALL_DOCS/deep-research-report_UPSTOX.md`.
 - **Cache invariants:** Instrument CSV must be cached per UTC day. Re-download only on date change or cache miss.
-- **7-strike window rule:** The buffer always exposes the **last 7 strikes** (ATM ± 3) per subscribed instrument. Out-of-window strikes are dropped silently.
+- **7-strike window rule:** The buffer always exposes the strikes around ATM (configurable via `ATM_STRIKE_WINDOW`, default ±3 = 7 strikes) per subscribed instrument. Out-of-window strikes are dropped silently.
 - **Forward-fill OI:** When the exchange OI packet is null (3–5 min lag), the buffer must forward-fill the last known OI rather than emit 0. The analyst engine relies on this to avoid divide-by-zero noise.
 - **Async only:** The WebSocket client is `asyncio` based. It must register a single async tick handler. No blocking I/O on the event loop.
 
