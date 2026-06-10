@@ -23,7 +23,8 @@ from typing import Any
 
 from dotenv import load_dotenv
 
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -171,6 +172,15 @@ app = FastAPI(
     title="NIFTY Trading System — Live Dashboard",
     description="End-to-end live streaming and UI for the NIFTY options trading system.",
     lifespan=lifespan,
+)
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Serve static files
@@ -442,6 +452,116 @@ async def disconnect_upstox():
         logger.info("WebSocket disconnected")
         return JSONResponse({"status": "disconnected"})
     return JSONResponse({"error": "Not connected"}, status_code=400)
+
+
+# ---------------------------------------------------------------------------
+# New UI Integration Endpoints
+# ---------------------------------------------------------------------------
+
+@app.get("/api/quotes")
+async def get_quotes():
+    """Returns the option chain in the format expected by the new UI."""
+    nifty_tick = state.latest_ticks.get("NSE_INDEX|Nifty 50")
+    if not nifty_tick:
+        # If not connected, try to find any tick that looks like Nifty
+        for key, tick in state.latest_ticks.items():
+            if "Nifty 50" in key:
+                nifty_tick = tick
+                break
+
+    spot_price = nifty_tick.get("last_price", 22450.0) if nifty_tick else 22450.0
+    atm_strike = round(spot_price / 50) * 50
+    strikes_list = [atm_strike + i * 50 for i in range(-3, 4)]
+
+    strike_chain = []
+    for s in strikes_list:
+        ce_tick = None
+        pe_tick = None
+
+        # Scan latest_ticks for matching strike and type
+        for key, tick in state.latest_ticks.items():
+            symbol = tick.get("symbol", "")
+            if str(s) in symbol:
+                if symbol.endswith("CE"):
+                    ce_tick = tick
+                elif symbol.endswith("PE"):
+                    pe_tick = tick
+
+        strike_chain.append({
+            "strike": s,
+            "callOI": ce_tick.get("oi", 0) if ce_tick else 0,
+            "callCOI": 0, # Could be calculated if we tracked initial OI
+            "callVolume": ce_tick.get("volume", 0) if ce_tick else 0,
+            "callPremium": ce_tick.get("last_price", 0) if ce_tick else 0,
+            "putOI": pe_tick.get("oi", 0) if pe_tick else 0,
+            "putCOI": 0,
+            "putVolume": pe_tick.get("volume", 0) if pe_tick else 0,
+            "putPremium": pe_tick.get("last_price", 0) if pe_tick else 0
+        })
+
+    return JSONResponse({
+        "spotPrice": round(spot_price, 2),
+        "instrument": "NIFTY",
+        "strikeChain": strike_chain
+    })
+
+
+@app.post("/api/order")
+async def receive_terminal_order(request: Request):
+    """Receive inbound order triggers from the new UI."""
+    payload = await request.json()
+    logger.info(
+        "Inbound Order: ID=%s %s %s %s Qty=%s Price=%s",
+        payload.get("orderId"),
+        payload.get("side"),
+        payload.get("instrument"),
+        payload.get("strike"),
+        payload.get("quantity"),
+        payload.get("entryPrice")
+    )
+
+    # Add to internal state for tracking
+    order_dict = {
+        "id": payload.get("orderId"),
+        "side": payload.get("side"),
+        "type": payload.get("type"),
+        "strike": payload.get("strike"),
+        "quantity": payload.get("quantity"),
+        "entry_price": payload.get("entryPrice"),
+        "timestamp": payload.get("timestamp"),
+        "instrument": payload.get("instrument"),
+        "status": "ACTIVE"
+    }
+    state.positions.append(order_dict)
+    state.daily_trades += 1
+
+    await broadcast_status()
+    return JSONResponse({"status": "SUCCESS", "orderId": payload.get("orderId")})
+
+
+@app.post("/api/order/exit")
+async def receive_terminal_exit(request: Request):
+    """Receive position exits from the new UI."""
+    payload = await request.json()
+    logger.info(
+        "Scalp Exit: ID=%s Price=%s PnL=%s",
+        payload.get("orderId"),
+        payload.get("closingPrice"),
+        payload.get("pnl")
+    )
+
+    # Update internal state
+    order_id = payload.get("orderId")
+    for pos in state.positions:
+        if pos.get("id") == order_id:
+            pos["status"] = "CLOSED"
+            pos["exit_price"] = payload.get("closingPrice")
+            pos["pnl"] = payload.get("pnl")
+            state.daily_pnl += pos["pnl"]
+            break
+
+    await broadcast_status()
+    return JSONResponse({"status": "SUCCESS", "closedOrderId": order_id})
 
 
 @app.websocket("/ws")
